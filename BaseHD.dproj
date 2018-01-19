@@ -88,6 +88,8 @@
         </DCCReference>
         <DCCReference Include="libcoder.pas"/>
         <DCCReference Include="functions.pas"/>
+        <DCCReference Include="constants.pas"/>
+        <None Include="readers2.ini"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

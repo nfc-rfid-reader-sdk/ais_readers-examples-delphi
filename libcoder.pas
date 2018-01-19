@@ -2,6 +2,7 @@ unit libcoder;
 
 interface
 
+
 type
   DL_STATUS = LongInt;
 
@@ -18,6 +19,9 @@ function AIS_List_EraseAllDevicesForCheck:DL_STATUS stdcall;
 function AIS_List_AddDeviceForCheck(devType, devId:integer):DL_STATUS stdcall;
 function AIS_List_GetDevicesForCheck:PAnsiChar stdcall;
 
+{helper functions}
+function device_type_enum2str(devType:integer; var devTypeStr:PAnsiChar):DL_STATUS stdcall;
+function dl_status2str(status:DL_STATUS):PAnsiChar stdcall;
 
 implementation
 
@@ -25,5 +29,10 @@ implementation
   function AIS_List_EraseAllDevicesForCheck; external DLL_NAME;
   function AIS_List_AddDeviceForCheck; external DLL_NAME;
   function AIS_List_GetDevicesForCheck; external DLL_NAME;
+
+  {helper functions}
+   function device_type_enum2str;external DLL_NAME;
+   function dl_status2str;external DLL_NAME;
+
 
 end.

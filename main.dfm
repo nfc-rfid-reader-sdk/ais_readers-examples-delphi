@@ -49,7 +49,6 @@ object frmMain: TfrmMain
     Width = 839
     Height = 25
     Panels = <>
-    ExplicitTop = 472
   end
   object txtOutput: TMemo
     Left = 8

@@ -1,0 +1,69 @@
+unit functions;
+
+interface
+uses
+  Vcl.Dialogs, System.SysUtils, System.StrUtils, System.Types,
+  constants,
+  libcoder;
+
+  function GetListInformation():string;
+  function list_for_check_print:string;
+var
+  format_grid:array[0..2] of ShortString = ('---------------------------------------------------------------------------------------------------------------------',
+                                           '| indx|  Reader HANDLE   | SerialNm | Type h/d | ID  | FW   | speed   | FTDI: sn   | opened | DevStatus | SysStatus |',
+                                           '---------------------------------------------------------------------------------------------------------------------');
+implementation
+
+
+
+  function GetListInformation():string;
+  var
+        res_0,
+        res_1,
+        res:string;
+        idx:integer;
+        hnd:^AnsiChar;
+        devSerial:^AnsiChar;
+        devType,
+        devID,
+        devFW_VER,
+        devCommSpeed:integer;
+        devFTDI_Serial:^AnsiChar;
+        devOpened,
+        devStatus,
+        systemStatus:integer;
+  begin
+        res_0 := format_grid[0] + '#13#10' + format_grid[1] + '#13#10' + format_grid[2] + '#13#10';
+
+
+  end;
+
+  function list_for_check_print:string;
+
+  var
+    rv : PAnsiChar;
+    dev_type_str : PAnsiChar;
+    dev_type,
+    dev_id,
+    a    : integer;
+    status:DL_STATUS;
+
+    arrv,ll:TStringDynArray;
+  begin
+       rv := AIS_List_GetDevicesForCheck;
+       if  Length(rv) = 0 then Exit;
+
+       arrv:=SplitString(rv, '#$A'); //escape delimiter #10 .. '\n'
+       for a:=Low(arrv) to High(arrv) do begin
+           ll:= SplitString(arrv[a], DEV_DELIMITER);
+           dev_type:=StrToInt(ll[0]);
+           dev_id:=StrToInt(Trim(ll[1]));
+           status = device_type_enum2str(dev_type, dev_type_str);
+       end;
+
+  end;
+
+ 
+
+
+end.
