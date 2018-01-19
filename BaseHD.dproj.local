@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+  <Transactions>
+    <Transaction>2018/01/19 08:54:23.275,=C:\Users\Vladan S\Documents\RAD Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2018/01/19 08:55:09.700,D:\Development\Git\Delphi\Base_HD\main.pas=C:\Users\Vladan S\Documents\RAD Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2018/01/19 08:55:09.700,D:\Development\Git\Delphi\Base_HD\main.dfm=C:\Users\Vladan S\Documents\RAD Studio\Projects\Unit1.dfm</Transaction>
+    <Transaction>2018/01/19 08:56:51.043,D:\Development\Git\Delphi\Base_HD\BaseHD.dproj=C:\Users\Vladan S\Documents\RAD Studio\Projects\Project1.dproj</Transaction>
+    <Transaction>2018/01/19 09:18:41.301,=D:\Development\Git\Delphi\Base_HD\Unit1.pas</Transaction>
+    <Transaction>2018/01/19 09:20:10.013,D:\Development\Git\Delphi\Base_HD\libcoder.pas=D:\Development\Git\Delphi\Base_HD\Unit1.pas</Transaction>
+    <Transaction>2018/01/19 10:04:06.568,=D:\Development\Git\Delphi\Base_HD\Unit1.pas</Transaction>
+    <Transaction>2018/01/19 10:04:33.334,D:\Development\Git\Delphi\Base_HD\functions.pas=D:\Development\Git\Delphi\Base_HD\Unit1.pas</Transaction>
+  </Transactions>
+</BorlandProject>
