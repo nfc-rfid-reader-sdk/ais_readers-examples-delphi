@@ -14,6 +14,8 @@ object frmMain: TfrmMain
   Font.Style = []
   OldCreateOrder = False
   Position = poScreenCenter
+  OnClose = FormClose
+  OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
   object grpBaseCommands: TGroupBox
@@ -24,9 +26,9 @@ object frmMain: TfrmMain
     Caption = ' Base Commands '
     TabOrder = 0
     object btnLibVersion: TButton
-      Left = 24
+      Left = 160
       Top = 32
-      Width = 185
+      Width = 121
       Height = 41
       Cursor = crHandPoint
       Caption = 'LIB VERSION'
@@ -34,13 +36,23 @@ object frmMain: TfrmMain
       OnClick = btnLibVersionClick
     end
     object btnGetRun: TButton
-      Left = 216
+      Left = 24
       Top = 32
-      Width = 105
+      Width = 121
       Height = 41
-      Caption = 'btnGetRun'
+      Caption = 'LOAD DEVICES'
       TabOrder = 1
       OnClick = btnGetRunClick
+    end
+    object btnExit: TButton
+      Left = 664
+      Top = 152
+      Width = 145
+      Height = 41
+      Cursor = crHandPoint
+      Caption = 'EXIT'
+      TabOrder = 2
+      OnClick = btnExitClick
     end
   end
   object stbStatus: TStatusBar
@@ -48,7 +60,20 @@ object frmMain: TfrmMain
     Top = 522
     Width = 839
     Height = 25
-    Panels = <>
+    Panels = <
+      item
+        Alignment = taCenter
+        Text = 'DEVICES COUNT'
+        Width = 120
+      end
+      item
+        Alignment = taCenter
+        Width = 50
+      end
+      item
+        Width = 50
+      end>
+    ExplicitLeft = 8
   end
   object txtOutput: TMemo
     Left = 8

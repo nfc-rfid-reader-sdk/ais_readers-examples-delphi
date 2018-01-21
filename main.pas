@@ -1,7 +1,7 @@
 unit main;
 
 {
- ver 1.0.2;
+ ver 1.0.3;
 }
 
 
@@ -15,6 +15,7 @@ uses
   libcoder,
   functions;
 
+
 type
   TfrmMain = class(TForm)
     grpBaseCommands: TGroupBox;
@@ -22,14 +23,21 @@ type
     txtOutput: TMemo;
     btnLibVersion: TButton;
     btnGetRun: TButton;
+    btnExit: TButton;
     procedure btnLibVersionClick(Sender: TObject);
     procedure btnGetRunClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure btnExitClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
+    DEV_HND :TDevice_S;
+    HND_LIST:TStringList;
     procedure prepare_list_for_check;
     function list_for_check_print: string;
     function load_list_from_file:boolean;
     function list_device():integer;    //dev:TDevice_S
     function add_device(devType, devId:integer):boolean;
+    function GetListInformation:string;
   public
     { Public declarations }
   end;
@@ -51,15 +59,83 @@ begin
    else Result:=False;
 end;
 
+procedure TfrmMain.btnExitClick(Sender: TObject);
+begin
+  Close;
+end;
+
 procedure TfrmMain.btnGetRunClick(Sender: TObject);
 begin
     txtOutput.Lines.Add(AIS_GetLibraryVersionStr);
-    list_device();
+    stbStatus.Panels[1].Text:=IntToStr(list_device);
+
 end;
 
 procedure TfrmMain.btnLibVersionClick(Sender: TObject);
 begin
    txtOutput.Lines.Add(AIS_GetLibraryVersionStr);
+
+end;
+
+procedure TfrmMain.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+   HND_LIST.Free;
+end;
+
+procedure TfrmMain.FormCreate(Sender: TObject);
+begin
+    HND_LIST:=TStringList.Create;
+end;
+
+function TfrmMain.GetListInformation: string;
+var
+        res_0,
+        res_1,
+        res:string;
+        devIdx:integer;
+        devHnd:integer;
+        devSerial:PAnsiChar;
+        devType,
+        devID,
+        devFW_VER,
+        devCommSpeed:integer;
+        devFTDI_Serial:PAnsiChar;
+        devOpened,
+        devStatus,
+        systemStatus:integer;
+        status:DL_STATUS;
+        devCount:integer;
+        i:integer;
+
+begin
+        res:= format_grid[0] + #13#10 + format_grid[1] + #13#10 + format_grid[2] + #10;
+        res_1:= format_grid[0] + #13#10;
+        status:=AIS_List_UpdateAndGetCount(devCount);
+        if devCount = 0 then begin
+          txtOutput.Lines.Add('NO DEVICES FOUND');
+          Exit;
+        end;
+        txtOutput.Lines.Add(res);
+        for i := 0 to devCount do
+        begin
+           status:=AIS_List_GetInformation(devHnd, devSerial, devType, devID, devFW_VER, devCommSpeed, devFTDI_Serial,
+                                              devOpened, devStatus, systemStatus);
+
+           if status <> DL_OK then Exit;
+           HND_LIST.Append(IntToStr(devHnd));
+           with DEV_HND do
+           begin
+               idx:=i+1;
+               hnd:=devHnd;
+               SN:=devSerial;
+               dev_Type:=devType;
+               ID:=devID;
+               open:=devOpened;
+           end;
+           AIS_Open(devHnd);
+           txtOutput.Lines.Add(format('| %3d | %.16X | %s | %7d  | %2d  | %d  | %7d | %s | %5d  | %8d  | %9d | ', [i+1, devHnd, devSerial, devType, devID, devFW_VER, devCommSpeed, devFTDI_Serial, devOpened,devStatus, systemStatus]));
+        end;
+        txtOutput.Lines.Add(format_grid[0] + #10);
 
 end;
 
@@ -78,9 +154,20 @@ begin
 end;
 
 function TfrmMain.list_device(): integer;
+var
+  status:DL_STATUS;
+  devCount:integer;
 begin
      prepare_list_for_check;
      txtOutput.Lines.Add('checking...please wait...');
+     status:=AIS_List_UpdateAndGetCount(devCount);
+     txtOutput.Lines.Add(format('AIS_List_UpdateAndGetCount() status: %d | dev count: %d', [status, devCount]));
+     if devCount = 0 then begin
+        txtOutput.Lines.Add('NO DEVICES FOUND');
+        Exit;
+     end;
+     if devCount > 0 then GetListInformation;
+     Result:=devCount;
 
 end;
 
@@ -111,33 +198,35 @@ function TfrmMain.list_for_check_print:string;
 
 function TfrmMain.load_list_from_file: boolean;
 var
-   devIni:TIniFile;
+   devIni:TMemIniFile;
    addedDevType,
-   devTypeEnum :integer;
+   devTypeEnum,
+   dev_id :integer;
    devValues:TStringList;
    arrv,ll:TStringDynArray;
-   s:string;
+   dev_type_str : ansistring;
+   i:byte;
+   status:DL_STATUS;
 begin
+   addedDevType:=0;
    GetCurrentDir;
-   devIni:=TIniFile.Create('readers.ini');
+   devValues:=TStringList.Create;
+   devIni:=TMemIniFile.Create(INI_FILE_NAME);
    try
-     try
-      devValues:=TStringList.Create;
       devIni.ReadSectionValues(INI_DEVICE_SECT, devValues);
-
-      showmessage(IntToStr(devValues.Count));
-
-
-      Result:=True;
-
-     except
-      on E:Exception do
-        MessageDlg(E.Message, mtError, [mbOK], 0);
-     end;
-
+      arrv:=SplitString(devValues.Text, ESCAPE_DELIMITER);
+      for i := 0 to devValues.Count-1 do begin
+        ll:=SplitString(arrv[i], INI_DELIMITER);
+        dev_type_str:=(Trim(ll[0]));
+        dev_id:=StrToInt(Trim(ll[1]));
+        status:=device_type_str2enum(dev_type_str, devTypeEnum);
+        if status <> 0 then continue;
+        if add_device(devTypeEnum, dev_id) = True then inc(addedDevType);
+       end;
    finally
      devIni.Free;
      devValues.Free;
+     if addedDevType > 0  then Result:=True else Result:=False;
    end;
 
 end;

@@ -1,0 +1,14 @@
+unit functions;
+
+interface
+uses
+  Vcl.Dialogs, System.SysUtils, System.StrUtils, System.Types,
+  constants,
+  libcoder;
+
+
+
+
+implementation
+
+end.

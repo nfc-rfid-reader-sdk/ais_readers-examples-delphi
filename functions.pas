@@ -6,39 +6,7 @@ uses
   constants,
   libcoder;
 
-  function GetListInformation():string;
 
-var
-  format_grid:array[0..2] of ShortString = ('---------------------------------------------------------------------------------------------------------------------',
-                                           '| indx|  Reader HANDLE   | SerialNm | Type h/d | ID  | FW   | speed   | FTDI: sn   | opened | DevStatus | SysStatus |',
-                                           '---------------------------------------------------------------------------------------------------------------------');
 implementation
-
-
-
-  function GetListInformation():string;
-  var
-        res_0,
-        res_1,
-        res:string;
-        idx:integer;
-        hnd:^AnsiChar;
-        devSerial:^AnsiChar;
-        devType,
-        devID,
-        devFW_VER,
-        devCommSpeed:integer;
-        devFTDI_Serial:^AnsiChar;
-        devOpened,
-        devStatus,
-        systemStatus:integer;
-  begin
-        res_0 := format_grid[0] + '#13#10' + format_grid[1] + '#13#10' + format_grid[2] + '#13#10';
-
-
-  end;
-
-
-
 
 end.

@@ -5,11 +5,12 @@ interface
   type
     TDevice_S  = record
         idx               : integer;
-        hnd               : ^Integer;
+        hnd               : Integer;
         open              : integer;
         status_           : LongInt;
         status_last       : LongInt;
-        SN                : ^AnsiChar;
+        SN                : PAnsiChar;
+        dev_Type           : integer;
         ID                : integer;
         RealTimeEvents    : integer;
         LogAvailable      : integer;
@@ -28,11 +29,21 @@ interface
 
 
   const
-     DEV_DELIMITER = ':';
-     ESCAPE_DELIMITER = #10;
-     INI_DEVICE_SECT  = 'DEVICES';
+       DEV_DELIMITER = ':';
+       ESCAPE_DELIMITER = #10;
+
+  const
+       INI_DELIMITER    = '=';
+       INI_FILE_NAME    = 'readers.ini';
+       INI_DEVICE_SECT  = 'DEVICES';
+
+  const
+       DL_OK            = 0;
 
 
+  format_grid:array[0..2] of ShortString = ('------------------------------------------------------------------------------------------------------------------------------------------',
+                                           '| indx|  Reader HANDLE   | SerialNm | Type h/d | ID  | FW   | speed   | FTDI: sn   | opened | DevStatus | SysStatus |',
+                                           '------------------------------------------------------------------------------------------------------------------------------------------');
 
 implementation
 

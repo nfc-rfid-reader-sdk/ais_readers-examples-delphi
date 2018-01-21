@@ -4,7 +4,6 @@ uses
   Vcl.Forms,
   main in 'main.pas' {frmMain},
   libcoder in 'libcoder.pas',
-  functions in 'functions.pas',
   constants in 'constants.pas';
 
 {$R *.res}
