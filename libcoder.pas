@@ -15,10 +15,15 @@ const
 
 
 function AIS_GetLibraryVersionStr:PAnsiChar stdcall;
+
 function AIS_List_EraseAllDevicesForCheck:DL_STATUS stdcall;
+
 function AIS_List_AddDeviceForCheck(devType, devId:integer):DL_STATUS stdcall;
+
 function AIS_List_GetDevicesForCheck:PAnsiChar stdcall;
+
 function AIS_List_UpdateAndGetCount(var devCount:integer):DL_STATUS stdcall;
+
 function AIS_List_GetInformation(var devHnd:integer;
                                  var devSerial:PAnsiChar;
                                  var devType:integer;
@@ -29,14 +34,45 @@ function AIS_List_GetInformation(var devHnd:integer;
                                  var devOpened:integer;
                                  var devStatus:integer;
                                  var sysStatus:integer):DL_STATUS stdcall;
+
 function AIS_Open(hnd:integer):DL_STATUS stdcall;
+
 function AIS_Close(hnd:integer):DL_STATUS stdcall;
 
+function AIS_GetTime(hnd:integer;
+                      var current_time:Int64;
+                      var timezone:integer;
+                      var DST:integer;
+                      var offset:integer;
+                      var additional:Byte):DL_STATUS stdcall;
+
+function AIS_SetTime(hnd:integer;
+                     password:PAnsiChar;
+                     timeToSet:Int64;
+                     timezone:integer;
+                     DST:integer;
+                     offset:integer;
+                     additional:byte):DL_STATUS stdcall;
+
+function AIS_MainLoop(hnd:integer;
+                      var RealTimeEvents:integer;
+                      var LogAvailable:integer;
+                      var LogUnread:integer;
+                      var cmdResponses:integer;
+                      var cmdPercent:integer;
+                      var DeviceStatus:integer;
+                      var TimeoutOccurred:integer;
+                      var Status:integer):DL_STATUS stdcall;
 
 {helper functions}
 function device_type_str2enum(devTypeStr:ansistring; var devType:integer):DL_STATUS stdcall;
 function device_type_enum2str(devType:integer; var devTypeStr:PAnsiChar):DL_STATUS stdcall;
 function dl_status2str(status:DL_STATUS):PAnsiChar stdcall;
+function sys_get_timezone_info:PAnsiChar stdcall;
+function sys_get_timezone:LongInt stdcall;
+function sys_get_daylight:integer stdcall;
+function sys_get_dstbias:LongInt stdcall;
+
 
 implementation
 
@@ -48,11 +84,17 @@ implementation
   function AIS_List_GetInformation; external DLL_NAME;
   function AIS_Open; external DLL_NAME;
   function AIS_Close; external DLL_NAME;
+  function AIS_GetTime; external DLL_NAME;
+  function AIS_SetTime; external DLL_NAME;
+  function AIS_MainLoop;external DLL_NAME;
+
 
   {helper functions}
   function device_type_str2enum;external DLL_NAME;
   function device_type_enum2str;external DLL_NAME;
   function dl_status2str;external DLL_NAME;
-
-
+  function sys_get_timezone_info;external DLL_NAME;
+  function sys_get_timezone;external DLL_NAME;
+  function sys_get_daylight;external DLL_NAME;
+  function sys_get_dstbias;external DLL_NAME;
 end.

@@ -1,20 +1,22 @@
 unit main;
 
 {
- ver 1.0.3;
+ ver 1.0.4;
 }
 
 
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics, System.DateUtils,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ComCtrls,System.Types, System.StrUtils,
   System.IniFiles,
   constants,
   libcoder,
   functions;
 
+type
+   DEV_HND = TDevice_S;
 
 type
   TfrmMain = class(TForm)
@@ -24,22 +26,28 @@ type
     btnLibVersion: TButton;
     btnGetRun: TButton;
     btnExit: TButton;
+    btnGetTime: TButton;
+    lblDevices: TLabel;
+    cboDevices: TComboBox;
+    btnSetTime: TButton;
     procedure btnLibVersionClick(Sender: TObject);
     procedure btnGetRunClick(Sender: TObject);
-    procedure FormCreate(Sender: TObject);
     procedure btnExitClick(Sender: TObject);
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure btnGetTimeClick(Sender: TObject);
+    procedure btnSetTimeClick(Sender: TObject);
   private
-    DEV_HND :TDevice_S;
-    HND_LIST:TStringList;
+    dev:DEV_HND;
+    HND_LIST:array of integer;
     procedure prepare_list_for_check;
     function list_for_check_print: string;
     function load_list_from_file:boolean;
     function list_device():integer;    //dev:TDevice_S
     function add_device(devType, devId:integer):boolean;
     function GetListInformation:string;
+
   public
-    { Public declarations }
+    function AISGetTime(dev:DEV_HND):integer;
+    function AISSetTime(dev:DEV_HND):string;
   end;
 
 var
@@ -59,6 +67,38 @@ begin
    else Result:=False;
 end;
 
+function TfrmMain.AISGetTime(dev:DEV_HND): integer;
+var
+  currTime : Int64;
+  timezone,
+  DST,
+  offset   : integer;
+  additional :Byte;
+begin
+//  dev.idx :=cboDevices.ItemIndex;
+//  dev.hnd:=HND_LIST[dev.idx];
+  dev.status_:=AIS_GetTime(dev.hnd, currTime, timezone, DST, offset, additional);
+  txtOutput.Lines.Add(format('AIS_GetTime(dev[%d] hnd=%x)> status=%d (tz= %d | DST= %d | offset= %d | additional= %d | %d | %s)' , [dev.idx + 1, dev.hnd, dev.status,timezone, DST, offset, additional, currTime, DateTimeToStr(UnixToDateTime(currTime))]));
+
+end;
+
+function TfrmMain.AISSetTime(dev: DEV_HND):string;
+var
+    timez,
+    DST,
+    offset : integer;
+    currTime:Int64;
+    additional:byte;
+begin
+    timez := sys_get_timezone;
+    DST   := sys_get_daylight;
+    offset := sys_get_dstbias;
+    currTime := DateTimeToUnix(Now);
+    dev.status_:=AIS_SetTime(dev.hnd, PASS, currTime, timez, DST, offset, additional);
+    Result:=(Format('AIS_SetTime(dev[%d] : pass:%s)> timezone=%d | DST=%d | offset=%d | additional=%d | status=%d | ts=%d | %s )',
+             [dev.idx + 1, PASS, timez, DST, offset, additional, dev.status_, currTime, DateTimeToStr(UnixToDateTime(currTime))]));
+end;
+
 procedure TfrmMain.btnExitClick(Sender: TObject);
 begin
   Close;
@@ -68,7 +108,13 @@ procedure TfrmMain.btnGetRunClick(Sender: TObject);
 begin
     txtOutput.Lines.Add(AIS_GetLibraryVersionStr);
     stbStatus.Panels[1].Text:=IntToStr(list_device);
+end;
 
+procedure TfrmMain.btnGetTimeClick(Sender: TObject);
+begin
+  dev.idx :=cboDevices.ItemIndex;
+  dev.hnd:=HND_LIST[dev.idx];
+  AISGetTime(dev);
 end;
 
 procedure TfrmMain.btnLibVersionClick(Sender: TObject);
@@ -77,14 +123,11 @@ begin
 
 end;
 
-procedure TfrmMain.FormClose(Sender: TObject; var Action: TCloseAction);
+procedure TfrmMain.btnSetTimeClick(Sender: TObject);
 begin
-   HND_LIST.Free;
-end;
-
-procedure TfrmMain.FormCreate(Sender: TObject);
-begin
-    HND_LIST:=TStringList.Create;
+  dev.idx :=cboDevices.ItemIndex;
+  dev.hnd:=HND_LIST[dev.idx];
+  txtOutput.Lines.Add(AISSetTime(dev));
 end;
 
 function TfrmMain.GetListInformation: string;
@@ -115,27 +158,31 @@ begin
           txtOutput.Lines.Add('NO DEVICES FOUND');
           Exit;
         end;
-        txtOutput.Lines.Add(res);
-        for i := 0 to devCount do
-        begin
-           status:=AIS_List_GetInformation(devHnd, devSerial, devType, devID, devFW_VER, devCommSpeed, devFTDI_Serial,
-                                              devOpened, devStatus, systemStatus);
+        try
+          txtOutput.Lines.Add(res);
+          SetLength(HND_LIST, devCount);
+          cboDevices.Clear;
+          for i := 0 to devCount do
+          begin
+             status:=AIS_List_GetInformation(devHnd, devSerial, devType, devID, devFW_VER, devCommSpeed, devFTDI_Serial,
+                                                devOpened, devStatus, systemStatus);
+             if status <> DL_OK then Exit;
 
-           if status <> DL_OK then Exit;
-           HND_LIST.Append(IntToStr(devHnd));
-           with DEV_HND do
-           begin
-               idx:=i+1;
-               hnd:=devHnd;
-               SN:=devSerial;
-               dev_Type:=devType;
-               ID:=devID;
-               open:=devOpened;
-           end;
-           AIS_Open(devHnd);
-           txtOutput.Lines.Add(format('| %3d | %.16X | %s | %7d  | %2d  | %d  | %7d | %s | %5d  | %8d  | %9d | ', [i+1, devHnd, devSerial, devType, devID, devFW_VER, devCommSpeed, devFTDI_Serial, devOpened,devStatus, systemStatus]));
+             HND_LIST[i]:= devHnd;
+             dev.idx:=i+1;
+             dev.hnd:=devHnd;
+             dev.SN:=devSerial;
+             dev.dev_Type:=devType;
+             dev.ID:=devID;
+             dev.open:=devOpened;
+             AIS_Open(devHnd);
+             txtOutput.Lines.Add(format('| %3d | %.16X | %s | %7d  | %2d  | %d  | %7d | %s | %5d  | %8d  | %9d | ', [i+1, devHnd, devSerial, devType, devID, devFW_VER, devCommSpeed, devFTDI_Serial, devOpened,devStatus, systemStatus]));
+             cboDevices.Items.Append(IntToStr(dev.idx));
+          end;
+        finally
+          txtOutput.Lines.Add(res_1);
+          cboDevices.ItemIndex:=0;
         end;
-        txtOutput.Lines.Add(format_grid[0] + #10);
 
 end;
 
@@ -158,6 +205,7 @@ var
   status:DL_STATUS;
   devCount:integer;
 begin
+     Result:=0;
      prepare_list_for_check;
      txtOutput.Lines.Add('checking...please wait...');
      status:=AIS_List_UpdateAndGetCount(devCount);
