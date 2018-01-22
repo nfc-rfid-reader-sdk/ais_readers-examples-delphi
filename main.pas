@@ -401,8 +401,8 @@ begin
         end;
 
         if dev.RealTimeEvents > 0 then begin
-          txtOutput.Lines.Add('RTE');
-          PrintRTE(dev);
+          txtOutput.Lines.Add(Format('RTE dev[0x%x]', [dev.hnd]));
+//          PrintRTE(dev);
         end;
 
         Result:=True;

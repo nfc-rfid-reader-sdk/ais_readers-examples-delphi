@@ -1,7 +1,7 @@
 unit main;
 
 {
- ver 1.0.4;
+ ver 1.0.5;
 }
 
 
@@ -248,20 +248,26 @@ begin
 //                   rte_list_header[1] + '\n' + \
 //                   rte_list_header[2] + '\n'
 
-        while True do begin
-            dev.status_ :=  AIS_ReadRTE(dev.hnd, logIndex, logAction, logReaderId, logCardId, logSystemId, nfcUid, nfcUidLen, timeStamp);
+        while True do
+        begin
+            dev.status_ :=  AIS_ReadRTE(dev.hnd, logIndex, logAction, logReaderId, logCardId, logSystemId, nfcUid[0], nfcUidLen, timeStamp);
+            if  dev.status_ <> DL_OK then begin
+              txtOutput.Lines.Add(dl_status2str(dev.status_));
+              break;
+            end;
+
 
             dev.log.log_index := logIndex;
             dev.log.log_action := logAction;
             dev.log.log_reader_id := logReaderId;
             dev.log.log_card_id := logCardId;
             dev.log.log_system_id := logSystemId;
-//            dev.log.log_nfc_uid := nfcUid;
+//            dev.log.log_nfc_uid := nfcUid[0];
             dev.log.log_nfc_uid_len := nfcUidLen;
             dev.log.log_timestamp := timeStamp;
 
 
-            if  dev.status_ <> DL_OK then break;
+
             nfc_uid := '';
             for i:=0 to dev.log.log_nfc_uid_len do
                 nfc_uid := nfc_uid + format(':%02X' , [dev.log.log_nfc_uid[i]]);
@@ -277,7 +283,7 @@ begin
 //        resultText = rte_head + res + "LOG unread (incremental) = %d\n" % dev.UnreadLog + wr_status('AIS_ReadRTE()', DL_STATUS)
 //        return resultText
 
-          txtOutput.Lines.Add(dbg_action2str(dev.log.log_action));
+          txtOutput.Lines.Add('ppp');
         end;
 end;
 
@@ -396,7 +402,7 @@ begin
 
         if dev.RealTimeEvents > 0 then begin
           txtOutput.Lines.Add('RTE');
-          PrintRTE(dev);
+//          PrintRTE(dev);
         end;
 
         Result:=True;
