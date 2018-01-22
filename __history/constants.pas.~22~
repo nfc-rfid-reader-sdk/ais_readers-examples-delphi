@@ -10,7 +10,7 @@ interface
         status_           : LongInt;
         status_last       : LongInt;
         SN                : PAnsiChar;
-        devType           : integer;
+        dev_Type           : integer;
         ID                : integer;
         RealTimeEvents    : integer;
         LogAvailable      : integer;
@@ -39,11 +39,12 @@ interface
 
   const
        DL_OK            = 0;
+       PASS             = '1111';
+       NFC_UID_MAX_LEN  = 10;
 
-
-  format_grid:array[0..2] of ShortString = ('---------------------------------------------------------------------------------------------------------------------',
+  format_grid:array[0..2] of ShortString = ('------------------------------------------------------------------------------------------------------------------------------------------',
                                            '| indx|  Reader HANDLE   | SerialNm | Type h/d | ID  | FW   | speed   | FTDI: sn   | opened | DevStatus | SysStatus |',
-                                           '---------------------------------------------------------------------------------------------------------------------');
+                                           '------------------------------------------------------------------------------------------------------------------------------------------');
 
 implementation
 

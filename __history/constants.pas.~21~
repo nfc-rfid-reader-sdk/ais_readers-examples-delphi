@@ -10,6 +10,7 @@ interface
         status_           : LongInt;
         status_last       : LongInt;
         SN                : PAnsiChar;
+        dev_Type           : integer;
         ID                : integer;
         RealTimeEvents    : integer;
         LogAvailable      : integer;
@@ -38,9 +39,12 @@ interface
 
   const
        DL_OK            = 0;
+       PASS             = '1111';
+
+  format_grid:array[0..2] of ShortString = ('------------------------------------------------------------------------------------------------------------------------------------------',
+                                           '| indx|  Reader HANDLE   | SerialNm | Type h/d | ID  | FW   | speed   | FTDI: sn   | opened | DevStatus | SysStatus |',
+                                           '------------------------------------------------------------------------------------------------------------------------------------------');
 
 implementation
-  format_grid:array[0..2] of ShortString = ('---------------------------------------------------------------------------------------------------------------------',
-                                           '| indx|  Reader HANDLE   | SerialNm | Type h/d | ID  | FW   | speed   | FTDI: sn   | opened | DevStatus | SysStatus |',
-                                           '---------------------------------------------------------------------------------------------------------------------');
+
 end.

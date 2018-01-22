@@ -1,7 +1,8 @@
 unit libcoder;
 
 interface
-
+uses
+  constants;
 
 type
   DL_STATUS = LongInt;
@@ -12,7 +13,7 @@ const
      {$Else}
         DLL_NAME = '.\\lib\\windows\\x86_64\\ais_readers-x86_64.dll';
      {$EndIf}
-
+     NFC_UID_MAX_LEN  = 10;
 
 function AIS_GetLibraryVersionStr:PAnsiChar stdcall;
 
@@ -54,6 +55,26 @@ function AIS_SetTime(hnd:integer;
                      offset:integer;
                      additional:byte):DL_STATUS stdcall;
 
+function AIS_MainLoop(hnd:integer;
+                      var RealTimeEvents:integer;
+                      var LogAvailable:integer;
+                      var LogUnread:integer;
+                      var cmdResponses:integer;
+                      var cmdPercent:integer;
+                      var DeviceStatus:integer;
+                      var TimeoutOccurred:integer;
+                      var Status:integer):DL_STATUS stdcall;
+
+function AIS_ReadRTE(hnd:integer;
+                     var log_index:integer;
+		                 var log_action:integer;
+	                   var log_reader_id:integer;
+                     var log_card_id:integer;
+		                 var log_system_id:integer;
+        		         const nfc_uid:array of Byte;
+                		 var nfc_uid_len:integer;
+		                 var timestamp:Int64):DL_STATUS stdcall;
+
 {helper functions}
 function device_type_str2enum(devTypeStr:ansistring; var devType:integer):DL_STATUS stdcall;
 function device_type_enum2str(devType:integer; var devTypeStr:PAnsiChar):DL_STATUS stdcall;
@@ -76,6 +97,8 @@ implementation
   function AIS_Close; external DLL_NAME;
   function AIS_GetTime; external DLL_NAME;
   function AIS_SetTime; external DLL_NAME;
+  function AIS_MainLoop;external DLL_NAME;
+  function AIS_ReadRTE;external DLL_NAME;
 
   {helper functions}
   function device_type_str2enum;external DLL_NAME;

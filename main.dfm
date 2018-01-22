@@ -94,6 +94,16 @@ object frmMain: TfrmMain
       TabOrder = 5
       OnClick = btnSetTimeClick
     end
+    object btnRTE: TButton
+      Left = 405
+      Top = 88
+      Width = 121
+      Height = 41
+      Cursor = crHandPoint
+      Caption = 'RTE'
+      TabOrder = 6
+      OnClick = btnRTEClick
+    end
   end
   object stbStatus: TStatusBar
     Left = 0

@@ -1,7 +1,8 @@
 unit libcoder;
 
 interface
-
+uses
+  constants;
 
 type
   DL_STATUS = LongInt;
@@ -64,6 +65,18 @@ function AIS_MainLoop(hnd:integer;
                       var TimeoutOccurred:integer;
                       var Status:integer):DL_STATUS stdcall;
 
+function AIS_ReadRTE(hnd:integer;
+                     var log_index:integer;
+		                 var log_action:integer;
+	                   var log_reader_id:integer;
+                     var log_card_id:integer;
+		                 var log_system_id:integer;
+        		         var nfc_uid:array of Byte;
+                		 var nfc_uid_len:integer;
+		                 var timestamp:Int64):DL_STATUS stdcall;
+
+function AIS_ReadRTE_Count(hnd:integer):DL_STATUS stdcall;
+
 {helper functions}
 function device_type_str2enum(devTypeStr:ansistring; var devType:integer):DL_STATUS stdcall;
 function device_type_enum2str(devType:integer; var devTypeStr:PAnsiChar):DL_STATUS stdcall;
@@ -72,7 +85,7 @@ function sys_get_timezone_info:PAnsiChar stdcall;
 function sys_get_timezone:LongInt stdcall;
 function sys_get_daylight:integer stdcall;
 function sys_get_dstbias:LongInt stdcall;
-
+function dbg_action2str(actionValue:integer):PAnsiChar stdcall;
 
 implementation
 
@@ -87,6 +100,8 @@ implementation
   function AIS_GetTime; external DLL_NAME;
   function AIS_SetTime; external DLL_NAME;
   function AIS_MainLoop;external DLL_NAME;
+  function AIS_ReadRTE;external DLL_NAME;
+  function AIS_ReadRTE_Count;external DLL_NAME;
 
 
   {helper functions}
@@ -97,4 +112,8 @@ implementation
   function sys_get_timezone;external DLL_NAME;
   function sys_get_daylight;external DLL_NAME;
   function sys_get_dstbias;external DLL_NAME;
+  function dbg_action2str;external DLL_NAME;
+
+
+
 end.

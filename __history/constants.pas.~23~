@@ -2,20 +2,16 @@ unit constants;
 
 interface
 
- const
-   NFC_UID_MAX_LEN  = 10;
-
-
   type
       TS_LOG = record
-        log_index:integer;
-        log_action:integer;
-        log_reader_id:integer;
-        log_card_id:integer;
-        log_system_id:integer;
-        log_nfc_uid:array[0..NFC_UID_MAX_LEN] of Byte;
-        log_nfc_uid_len:integer;
-        log_timestamp:Int64;
+        log_index         = c_int(),
+        log_action        = c_int(),
+        log_reader_id     = c_int(),
+        log_card_id       = c_int(),
+        log_system_id     = c_int(),
+        log_nfc_uid       = (c_uint8 * NFC_UID_MAX_LEN)(),
+        log_nfc_uid_len   = c_int(),
+        log_timestamp     = c_uint64()
       end;
 
   type
@@ -26,7 +22,7 @@ interface
         status_           : LongInt;
         status_last       : LongInt;
         SN                : PAnsiChar;
-        dev_Type          : integer;
+        dev_Type           : integer;
         ID                : integer;
         RealTimeEvents    : integer;
         LogAvailable      : integer;
