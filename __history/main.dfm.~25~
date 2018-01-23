@@ -4,7 +4,7 @@ object frmMain: TfrmMain
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'BaseHD'
-  ClientHeight = 547
+  ClientHeight = 661
   ClientWidth = 839
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -18,21 +18,21 @@ object frmMain: TfrmMain
   TextHeight = 13
   object grpBaseCommands: TGroupBox
     Left = 8
-    Top = 16
+    Top = 7
     Width = 823
-    Height = 201
+    Height = 266
     Caption = ' Base Commands '
     TabOrder = 0
     object lblDevices: TLabel
-      Left = 151
+      Left = 169
       Top = 23
-      Width = 42
+      Width = 46
       Height = 13
-      Caption = 'DEVICES'
+      Caption = 'DEVICES:'
     end
     object btnLibVersion: TButton
-      Left = 24
-      Top = 88
+      Left = 42
+      Top = 99
       Width = 121
       Height = 41
       Cursor = crHandPoint
@@ -41,7 +41,7 @@ object frmMain: TfrmMain
       OnClick = btnLibVersionClick
     end
     object btnGetRun: TButton
-      Left = 24
+      Left = 42
       Top = 23
       Width = 121
       Height = 50
@@ -51,18 +51,18 @@ object frmMain: TfrmMain
       OnClick = btnGetRunClick
     end
     object btnExit: TButton
-      Left = 664
-      Top = 152
+      Left = 673
+      Top = 214
       Width = 145
-      Height = 41
+      Height = 47
       Cursor = crHandPoint
       Caption = 'EXIT'
       TabOrder = 2
       OnClick = btnExitClick
     end
     object btnGetTime: TButton
-      Left = 151
-      Top = 88
+      Left = 42
+      Top = 145
       Width = 121
       Height = 41
       Cursor = crHandPoint
@@ -71,7 +71,7 @@ object frmMain: TfrmMain
       OnClick = btnGetTimeClick
     end
     object cboDevices: TComboBox
-      Left = 151
+      Left = 169
       Top = 42
       Width = 82
       Height = 31
@@ -85,8 +85,8 @@ object frmMain: TfrmMain
       TabOrder = 4
     end
     object btnSetTime: TButton
-      Left = 278
-      Top = 88
+      Left = 42
+      Top = 191
       Width = 121
       Height = 41
       Cursor = crHandPoint
@@ -94,20 +94,49 @@ object frmMain: TfrmMain
       TabOrder = 5
       OnClick = btnSetTimeClick
     end
-    object btnRTE: TButton
-      Left = 405
-      Top = 88
-      Width = 121
-      Height = 41
-      Cursor = crHandPoint
-      Caption = 'RTE'
+    object grpLogs: TGroupBox
+      Left = 320
+      Top = 23
+      Width = 481
+      Height = 185
       TabOrder = 6
-      OnClick = btnRTEClick
+      object lblTimeDuration: TLabel
+        Left = 32
+        Top = 14
+        Width = 70
+        Height = 13
+        Caption = 'Time Duration:'
+      end
+      object btnRTE: TButton
+        Left = 120
+        Top = 19
+        Width = 121
+        Height = 44
+        Cursor = crHandPoint
+        Caption = 'RTE'
+        TabOrder = 0
+        OnClick = btnRTEClick
+      end
+      object txtRteDuration: TEdit
+        Left = 32
+        Top = 33
+        Width = 70
+        Height = 29
+        Alignment = taCenter
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        NumbersOnly = True
+        ParentFont = False
+        TabOrder = 1
+      end
     end
   end
   object stbStatus: TStatusBar
     Left = 0
-    Top = 522
+    Top = 636
     Width = 839
     Height = 25
     Panels = <
@@ -123,12 +152,19 @@ object frmMain: TfrmMain
       item
         Width = 50
       end>
+    ExplicitTop = 522
   end
   object txtOutput: TMemo
     Left = 8
-    Top = 223
+    Top = 288
     Width = 823
-    Height = 293
+    Height = 330
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentFont = False
     ReadOnly = True
     TabOrder = 2
   end

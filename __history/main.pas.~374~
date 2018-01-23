@@ -1,7 +1,7 @@
 unit main;
 
 {
- ver 1.0.5;
+ ver 1.0.7;
 }
 
 
@@ -13,11 +13,11 @@ uses
   System.IniFiles,
   constants,
   libcoder,
-  functions;
+  functions, Vcl.ExtCtrls;
 
 type
    DEV_HND = TDevice_S;
-
+   PROGRESS = TS_PROGRESS;
 type
   TfrmMain = class(TForm)
     grpBaseCommands: TGroupBox;
@@ -25,21 +25,42 @@ type
     txtOutput: TMemo;
     btnLibVersion: TButton;
     btnGetRun: TButton;
-    btnExit: TButton;
     btnGetTime: TButton;
     lblDevices: TLabel;
     cboDevices: TComboBox;
     btnSetTime: TButton;
+    grpLogs: TGroupBox;
     btnRTE: TButton;
+    lblTimeDuration: TLabel;
+    txtRteDuration: TEdit;
+    btnAllLogs: TButton;
+    txtLogStartIndex: TEdit;
+    lblLogStartIndex: TLabel;
+    lblLogEndIndex: TLabel;
+    txtLogEndIndex: TEdit;
+    btnLogByIndex: TButton;
+    btnExit: TButton;
+    Shape3: TShape;
+    lblLogStartTime: TLabel;
+    txtLogStartTime: TEdit;
+    lblLogEndTime: TLabel;
+    txtLogEndTime: TEdit;
+    btnLogByTime: TButton;
+    Bevel1: TBevel;
+    Bevel2: TBevel;
     procedure btnLibVersionClick(Sender: TObject);
     procedure btnGetRunClick(Sender: TObject);
     procedure btnExitClick(Sender: TObject);
     procedure btnGetTimeClick(Sender: TObject);
     procedure btnSetTimeClick(Sender: TObject);
     procedure btnRTEClick(Sender: TObject);
+    procedure btnAllLogsClick(Sender: TObject);
+    procedure btnLogByIndexClick(Sender: TObject);
+    procedure btnLogByTimeClick(Sender: TObject);
 
   private
     dev:DEV_HND;
+    progress_:PROGRESS;
     HND_LIST:array of integer;
     procedure prepare_list_for_check;
     function list_for_check_print: string;
@@ -47,12 +68,16 @@ type
     function list_device():integer;    //dev:TDevice_S
     function add_device(devType, devId:integer):boolean;
     function GetListInformation:string;
+    function MainLoop():Boolean;
     procedure PrintRTE(dev:DEV_HND);
     procedure PrintLog(dev:DEV_HND);
+    procedure DoCmd(var dev:DEV_HND);
   public
     function AISGetTime(out res:string; dev:DEV_HND):int64;
     function AISSetTime(dev:DEV_HND):string;
-    function MainLoop(dev:DEV_HND):Boolean;
+    procedure LogGet(dev:DEV_HND);
+    procedure LogByIndex(startIndex,endIndex:integer; dev:DEV_HND);
+    procedure LogByTime(startTime,endTime:integer; dev:DEV_HND);
   end;
 
 var
@@ -72,17 +97,18 @@ begin
    else Result:=False;
 end;
 
-function TfrmMain.AISGetTime(out res:string;dev:DEV_HND): int64;
+function TfrmMain.AISGetTime(out res:string; dev:DEV_HND): int64;
 var
   currTime : Int64;
   timezone,
   DST,
   offset   : integer;
   additional :Byte;
+  devStatus:DL_STATUS;
 begin
-  dev.status_:=AIS_GetTime(dev.hnd, currTime, timezone, DST, offset, additional);
-  res:=format('AIS_GetTime(dev[%d] hnd=%x)> status=%d (tz= %d | DST= %d | offset= %d | additional= %d | %d | %s)' , [dev.idx + 1, dev.hnd, dev.status,timezone, DST, offset, additional, currTime, DateTimeToStr(UnixToDateTime(currTime))]);
-  Result:=currTime
+  devStatus:=AIS_GetTime(dev.hnd, currTime, timezone, DST, offset, additional);
+  res:=Format('AIS_GetTime(dev[%d] hnd=%x)> status=%s (tz=%d | DST=%d | offset=%d | additional=%d | ts=%d | %s)' , [dev.idx + 1, dev.hnd, dl_status2str(devStatus),timezone, DST, offset, additional, currTime, DateTimeToStr(UnixToDateTime(currTime))]);
+  Result:=currTime;
 end;
 
 function TfrmMain.AISSetTime(dev: DEV_HND):string;
@@ -91,15 +117,25 @@ var
     DST,
     offset : integer;
     currTime:Int64;
-    additional:byte;
+    additional:Byte;
+    devStatus:DL_STATUS;
 begin
     timez := sys_get_timezone;
     DST   := sys_get_daylight;
     offset := sys_get_dstbias;
-    currTime := DateTimeToUnix(Now);
-    dev.status_:=AIS_SetTime(dev.hnd, PASS, currTime, timez, DST, offset, additional);
-    Result:=(Format('AIS_SetTime(dev[%d] : pass:%s)> timezone=%d | DST=%d | offset=%d | additional=%d | status=%d | ts=%d | %s )',
-             [dev.idx + 1, PASS, timez, DST, offset, additional, dev.status_, currTime, DateTimeToStr(UnixToDateTime(currTime))]));
+    currTime :=DateTimeToUnix(Now);
+    devStatus:=AIS_SetTime(dev.hnd, PASS, currTime, timez, DST, offset, additional);
+    Result:=Format('AIS_SetTime(dev[%d] hnd=%x  pass:%s)> status=%s (timezone=%d | DST=%d | offset=%d | additional=%d |  ts=%d | %s )',
+             [dev.idx + 1, dev.hnd, PASS, dl_status2str(devStatus), timez, DST, offset, additional,  currTime, DateTimeToStr(UnixToDateTime(currTime))]);
+end;
+
+procedure TfrmMain.btnAllLogsClick(Sender: TObject);
+var
+   dev:DEV_HND;
+begin
+   dev.idx :=cboDevices.ItemIndex;
+   dev.hnd:=HND_LIST[dev.idx];
+   LogGet(dev);
 end;
 
 procedure TfrmMain.btnExitClick(Sender: TObject);
@@ -130,6 +166,52 @@ end;
 
 
 
+procedure TfrmMain.btnLogByIndexClick(Sender: TObject);
+var
+   startIdx,
+   endIdx:integer;
+begin
+   if Trim(txtLogStartIndex.Text) = EmptyStr then begin
+      MessageDlg('You must enter start index !', mtWarning, [mbOK], 0);
+      txtLogStartIndex.SetFocus;
+      Exit;
+   end;
+
+   if Trim(txtLogEndIndex.Text) = EmptyStr then begin
+      MessageDlg('You must enter end index !', mtWarning, [mbOK], 0);
+      txtLogEndIndex.SetFocus;
+      Exit;
+   end;
+   startIdx:=StrToInt(txtLogStartIndex.Text);
+   endIdx:=StrToInt(txtLogEndIndex.Text);
+   dev.idx :=cboDevices.ItemIndex;
+   dev.hnd:=HND_LIST[dev.idx];
+   LogByIndex(startIdx, endIdx, dev);
+end;
+
+procedure TfrmMain.btnLogByTimeClick(Sender: TObject);
+var
+   startT,
+   endT:Int64;
+begin
+   if Trim(txtLogStartTime.Text) = EmptyStr then begin
+      MessageDlg('You must enter start time !', mtWarning, [mbOK], 0);
+      txtLogStartTime.SetFocus;
+      Exit;
+   end;
+
+   if Trim(txtLogEndTime.Text) = EmptyStr then begin
+      MessageDlg('You must enter end Time !', mtWarning, [mbOK], 0);
+      txtLogEndTime.SetFocus;
+      Exit;
+   end;
+   startT:=StrToInt(txtLogStartTime.Text);
+   endT:=StrToInt(txtLogEndTime.Text);
+   dev.idx :=cboDevices.ItemIndex;
+   dev.hnd:=HND_LIST[dev.idx];
+   LogByTime(startT, endT, dev);
+end;
+
 procedure TfrmMain.btnSetTimeClick(Sender: TObject);
 begin
   dev.idx :=cboDevices.ItemIndex;
@@ -138,6 +220,16 @@ begin
 end;
 
 
+
+procedure TfrmMain.DoCmd(var dev: DEV_HND);
+begin
+   if dev.status_ <> DL_OK then Exit;
+   dev.cmd_finish:=False;
+   progress_.print_hdr:=True;
+   while not dev.cmd_finish  do begin
+      if MainLoop(dev) = True then break;
+   end;
+end;
 
 function TfrmMain.GetListInformation: string;
 var
@@ -185,7 +277,7 @@ begin
              dev.ID:=devID;
              dev.open:=devOpened;
              AIS_Open(devHnd);
-             txtOutput.Lines.Add(format('| %3d | %.16X | %s | %7d  | %2d  | %d  | %7d | %s | %5d  | %8d  | %9d | ', [i+1, devHnd, devSerial, devType, devID, devFW_VER, devCommSpeed, devFTDI_Serial, devOpened,devStatus, systemStatus]));
+             txtOutput.Lines.Add(Format(list_info, [i+1, devHnd, devSerial, devType, devID, devFW_VER, devCommSpeed, devFTDI_Serial, devOpened,devStatus, systemStatus]));
              cboDevices.Items.Append(IntToStr(dev.idx));
           end;
         finally
@@ -211,48 +303,47 @@ end;
 
 procedure TfrmMain.PrintLog(dev: DEV_HND);
 var
-        logIndex,
-        logAction,
-        logReaderId,
-        logCardId,
-        logSystemId:integer;
-        lognfcUid:array [0..NFC_UID_MAX_LEN] of Byte;
-        lognfcUidLen:integer;
-        timeStamp :int64;
         nfc_uid,
         uid_uid_len :ShortString;
         rteCount :integer;
         i:integer;
 begin
+        rteCount :=  AIS_ReadLog_Count(dev.hnd);
+        txtOutput.Lines.Add(Format('AIS_ReadLog_Count = %d ', [rteCount]));
+        txtOutput.Lines.Add(rte_list_header[0]  + #13#10 + rte_list_header[1] + #13#10 + rte_list_header[2] + #10);
         while True do
         begin
            dev.status_ :=  AIS_ReadLog(dev.hnd,
-                                        logIndex,
-                                        logAction,
-                                        logReaderId,
-                                        logCardId,
-                                        logSystemId,
-                                        @lognfcUid,
-                                        lognfcUidLen,
-                                        timeStamp);
+                                      dev.log.log_index,
+                                      dev.log.log_action,
+                                      dev.log.log_reader_id,
+                                      dev.log.log_card_id,
+                                      dev.log.log_system_id,
+                                      @dev.log.log_nfc_uid,
+                                      dev.log.log_nfc_uid_len,
+                                      dev.log.log_timestamp);
 
             if  dev.status_ <> DL_OK then begin
               txtOutput.Lines.Add(dl_status2str(dev.status_));
               break;
             end;
+
+            nfc_uid := '';
+            for i:=0 to dev.log.log_nfc_uid_len do
+                nfc_uid := nfc_uid + format(':%02X' , [dev.log.log_nfc_uid[i]]);
+
+            uid_uid_len := '[' + IntToStr(dev.log.log_nfc_uid_len) + '] | ' + nfc_uid;
+            txtOutput.Lines.Add(Format(rte_format, [dev.log.log_index, dbg_action2str(dev.log.log_action), dev.log.log_reader_id, dev.log.log_card_id,
+                                          dev.log.log_system_id, uid_uid_len,
+                                          dev.log.log_timestamp, DateTimeToStr(UnixToDateTime(dev.log.log_timestamp))]) + rte_list_header[2]);
+
         end;
 end;
 
+
+
 procedure TfrmMain.PrintRTE(dev: DEV_HND);
 var
-        logIndex,
-        logAction,
-        logReaderId,
-        logCardId,
-        logSystemId:integer;
-        nfcUid:array [0..NFC_UID_MAX_LEN] of Byte;
-        nfcUidLen:integer;
-        timeStamp :int64;
         nfc_uid,
         uid_uid_len :ShortString;
         rteCount :integer;
@@ -260,8 +351,7 @@ var
 begin
         rteCount :=  AIS_ReadRTE_Count(dev.hnd);
         txtOutput.Lines.Add(Format('AIS_ReadRTE_Count = %d '+#13#10+' = RTE Real Time Events = ' , [rteCount]));
-
-        txtOutput.Lines.Add(rte_list_header[0]  + #13#10 + rte_list_header[1] + #13#10 + rte_list_header[2] + #13#10);
+        txtOutput.Lines.Add(rte_list_header[0]  + #13#10 + rte_list_header[1] + #13#10 + rte_list_header[2] + #10);
 
         while True do
         begin
@@ -286,16 +376,13 @@ begin
 
             uid_uid_len := '[' + IntToStr(dev.log.log_nfc_uid_len) + '] | ' + nfc_uid;
 
-            res_rte += rte_format.format (dev.log.log_index, dbg_action2str(dev.log.log_action), dev.log.log_reader_id, dev.log.log_card_id,
-                                          dev.log.log_system_id, uid_uid_len,#nfc_uid + nfc_uid_len
-                                          dev.log.log_timestamp, time.ctime(dev.log.log_timestamp))
-//
-//            res = res_rte + '\n' + rte_list_header[2] + '\n'
+            txtOutput.Lines.Add(Format(rte_format, [dev.log.log_index, dbg_action2str(dev.log.log_action), dev.log.log_reader_id, dev.log.log_card_id,
+                                          dev.log.log_system_id, uid_uid_len,
+                                          dev.log.log_timestamp, DateTimeToStr(UnixToDateTime(dev.log.log_timestamp))]) + rte_list_header[2]);
 
-//        resultText = rte_head + res + "LOG unread (incremental) = %d\n" % dev.UnreadLog + wr_status('AIS_ReadRTE()', DL_STATUS)
-//        return resultText
-
+            txtOutput.Lines.Add(Format('LOG unread (incremental) = %d | AIS_ReadRTE()= %s ', [dev.UnreadLog, dbg_action2str(dev.status_)]));
         end;
+
 end;
 
 function TfrmMain.list_device(): integer;
@@ -377,10 +464,48 @@ begin
 
 end;
 
-function TfrmMain.MainLoop(dev: DEV_HND): Boolean;
+procedure TfrmMain.LogByIndex(startIndex,endIndex:integer; dev: DEV_HND);
 var
-        b_print : Boolean;
-        p_print : string;
+    devStatus:DL_STATUS;
+begin
+    devStatus:=AIS_GetLogByIndex(dev.hnd, PASS, startIndex, endIndex);
+    if devStatus <> DL_OK then begin
+       txtOutput.Lines.Add(Format('dev[%d] AIS_GetLogByIndex() : %s | start index= %d  | end index= %d', [dev.idx + 1, dl_status2str(devStatus), startIndex, endIndex]));
+       Exit;
+    end;
+    DoCmd(dev);
+    PrintLog(dev);
+end;
+
+procedure TfrmMain.LogByTime(startTime, endTime: integer; dev: DEV_HND);
+var
+    devStatus:DL_STATUS;
+begin
+    devStatus:=AIS_GetLogByTime(dev.hnd, PASS, startTime, endTime);
+    if devStatus <> DL_OK then begin
+       txtOutput.Lines.Add(Format('dev[%d] AIS_GetLogByTime() : %s | start time= %d  | end time= %d', [dev.idx + 1, dl_status2str(devStatus), startTime, endTime]));
+       Exit;
+    end;
+    DoCmd(dev);
+    PrintLog(dev);
+end;
+
+procedure TfrmMain.LogGet(dev: DEV_HND);
+var
+    devStatus:DL_STATUS;
+begin
+    devStatus := AIS_GetLog(dev.hnd, PASS);
+    if devStatus <> DL_OK then begin
+       txtOutput.Lines.Add(Format('dev[%d] AIS_GetLog() : %s ', [dev.idx + 1, dl_status2str(devStatus)]));
+       Exit;
+    end;
+    dev.status_ := devStatus;
+    DoCmd(dev);
+    PrintLog(dev);
+end;
+
+function TfrmMain.MainLoop(): Boolean;
+var
         real_time_events,
         log_available,
         unreadLog,
@@ -389,8 +514,9 @@ var
         device_status,
         time_out_occurred,
         _status : integer;
+        devStatus:DL_STATUS;
 begin
-        dev.status_ :=AIS_MainLoop(dev.hnd, real_time_events, log_available, unreadLog, cmd_responses,
+        devStatus :=AIS_MainLoop(dev.hnd, real_time_events, log_available, unreadLog, cmd_responses,
                                     cmd_percent, device_status, time_out_occurred, _status);
 
         dev.RealTimeEvents:=real_time_events;
@@ -402,17 +528,16 @@ begin
         dev.TimeoutOccurred := time_out_occurred;
         dev.Status := _status;
 
-        if dev.status_<> DL_OK then begin
-           if dev.status_last <> dev.status_ then
+        if devStatus<> DL_OK then begin
+           if dev.status_last <> devStatus then
            begin
-             txtOutput.Lines.Add(Format('MainLoop() status: %d', [dev.status_]));
-             dev.status_last:=dev.status_;
+             txtOutput.Lines.Add(Format('MainLoop() status: %d', [devStatus]));
+             dev.status_last:=devStatus;
            end;
         Result:=False;
         end;
 
         if dev.RealTimeEvents > 0 then begin
-          txtOutput.Lines.Add(Format('RTE dev[0x%x]', [dev.hnd]));
           PrintRTE(dev);
         end;
 
@@ -435,17 +560,14 @@ begin
            txtOutput.Lines.Add(Format('[%d] local_status= %s' , [dev.idx, dl_status2str(dev.Status)]));
         end;
 
-//        if dev.cmdPercent:
-//           print_percent(dev.cmdPercent)
+//        if dev.cmdPercent > 0 then
+////           print_percent(dev.cmdPercent)
+//           txtOutput.Text:='*';
 
-
-
-        if dev.cmdResponses <> 0 then begin
+        if dev.cmdResponses > 0 then begin
             txtOutput.Lines.Add('-- COMMAND FINISH !--');
             dev.cmd_finish := True;
         end;
-
-
         Result:=True;
 end;
 
@@ -455,15 +577,21 @@ var
     maxSec:integer;
     stopTime:int64;
 begin
-    maxsec:=20;
+    if Trim(txtRteDuration.Text) = EmptyStr then begin
+       MessageDlg('You must enter time duration for RTE !', mtWarning, [mbOK], 0);
+       txtRteDuration.SetFocus;
+       Exit;
+    end;
+    maxsec:=StrToInt(txtRteDuration.Text);
     stopTime:=DateTimeToUnix(Now) + maxSec;
     txtOutput.Lines.Add(Format('Wait for RTE for %d...', [maxsec]));
+
     while (DateTimeToUnix(Now)) < stopTime do begin
       for i:=Low(HND_LIST) to High(HND_LIST) do
       begin
           dev.idx:=i+1;
           dev.hnd:=HND_LIST[i];
-          MainLoop(dev);
+          MainLoop();
       end;
     end;
     txtOutput.Lines.Add('End RTE listen');

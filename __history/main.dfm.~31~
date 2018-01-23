@@ -92,9 +92,9 @@ object frmMain: TfrmMain
     end
     object grpLogs: TGroupBox
       Left = 344
-      Top = 27
+      Top = 39
       Width = 449
-      Height = 224
+      Height = 213
       TabOrder = 5
       object lblTimeDuration: TLabel
         Left = 32
@@ -119,14 +119,14 @@ object frmMain: TfrmMain
       end
       object lblLogStartTime: TLabel
         Left = 33
-        Top = 148
+        Top = 146
         Width = 49
         Height = 13
         Caption = 'Start Time'
       end
       object lblLogEndTime: TLabel
         Left = 33
-        Top = 185
+        Top = 183
         Width = 43
         Height = 13
         Caption = 'End Time'
@@ -210,17 +210,16 @@ object frmMain: TfrmMain
       end
       object btnLogByIndex: TButton
         Left = 304
-        Top = 81
+        Top = 82
         Width = 129
         Height = 40
         Cursor = crHandPoint
         Caption = 'LOG BY INDEX'
         TabOrder = 5
-        OnClick = btnLogByIndexClick
       end
       object txtLogStartTime: TEdit
         Left = 94
-        Top = 143
+        Top = 141
         Width = 136
         Height = 29
         Hint = 'Enter timestamp'
@@ -238,7 +237,7 @@ object frmMain: TfrmMain
       end
       object txtLogEndTime: TEdit
         Left = 94
-        Top = 178
+        Top = 176
         Width = 136
         Height = 29
         Hint = 'Enter timestamp'
@@ -256,13 +255,12 @@ object frmMain: TfrmMain
       end
       object btnLogByTime: TButton
         Left = 256
-        Top = 143
+        Top = 141
         Width = 177
         Height = 64
         Cursor = crHandPoint
         Caption = 'LOG BY TIME'
         TabOrder = 8
-        OnClick = btnLogByTimeClick
       end
     end
   end
@@ -284,6 +282,7 @@ object frmMain: TfrmMain
       item
         Width = 50
       end>
+    ExplicitTop = 522
   end
   object txtOutput: TMemo
     Left = 8

@@ -262,7 +262,6 @@ object frmMain: TfrmMain
         Cursor = crHandPoint
         Caption = 'LOG BY TIME'
         TabOrder = 8
-        OnClick = btnLogByTimeClick
       end
     end
   end
@@ -284,6 +283,7 @@ object frmMain: TfrmMain
       item
         Width = 50
       end>
+    ExplicitTop = 522
   end
   object txtOutput: TMemo
     Left = 8

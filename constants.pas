@@ -7,6 +7,13 @@ interface
 
 
   type
+    TS_PROGRESS = record
+        print_hdr :Boolean;
+        percent_old : integer;
+    end;
+
+
+  type
       TS_LOG = record
         log_index:integer;
         log_action:integer;

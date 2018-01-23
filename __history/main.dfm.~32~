@@ -210,13 +210,12 @@ object frmMain: TfrmMain
       end
       object btnLogByIndex: TButton
         Left = 304
-        Top = 81
+        Top = 82
         Width = 129
         Height = 40
         Cursor = crHandPoint
         Caption = 'LOG BY INDEX'
         TabOrder = 5
-        OnClick = btnLogByIndexClick
       end
       object txtLogStartTime: TEdit
         Left = 94
@@ -262,7 +261,6 @@ object frmMain: TfrmMain
         Cursor = crHandPoint
         Caption = 'LOG BY TIME'
         TabOrder = 8
-        OnClick = btnLogByTimeClick
       end
     end
   end
@@ -284,6 +282,7 @@ object frmMain: TfrmMain
       item
         Width = 50
       end>
+    ExplicitTop = 522
   end
   object txtOutput: TMemo
     Left = 8

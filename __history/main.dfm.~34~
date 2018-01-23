@@ -284,6 +284,7 @@ object frmMain: TfrmMain
       item
         Width = 50
       end>
+    ExplicitTop = 522
   end
   object txtOutput: TMemo
     Left = 8

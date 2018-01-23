@@ -75,8 +75,6 @@ function AIS_ReadRTE(hnd:integer;
                 		 var nfc_uid_len:integer;
 		                 var timestamp:Int64):DL_STATUS stdcall;
 
-function AIS_ReadRTE_Count(hnd:integer):DL_STATUS stdcall;
-
 function AIS_ReadLog(hnd:integer;
                      var log_index:integer;
 		                 var log_action:integer;
@@ -87,6 +85,22 @@ function AIS_ReadLog(hnd:integer;
                 		 var nfc_uid_len:integer;
 		                 var timestamp:Int64):DL_STATUS stdcall;
 
+
+function AIS_ReadRTE_Count(hnd:integer):DL_STATUS stdcall;
+function AIS_ReadLog_Count(hnd:integer):DL_STATUS stdcall;
+
+
+
+function AIS_GetLog(hnd:integer; pass:PAnsiChar):DL_STATUS stdcall;
+function AIS_GetLogByIndex(hnd:integer;
+                           pass:PAnsiChar;
+                           start_index:Int32;
+                           end_index:Int32):DL_STATUS stdcall;
+
+function AIS_GetLogByTime(hnd:integer;
+                          pass:PAnsiChar;
+                          start_time:Int64;
+                          end_time:Int64):DL_STATUS stdcall;
 
 
 {helper functions}
@@ -114,7 +128,11 @@ implementation
   function AIS_MainLoop;external DLL_NAME;
   function AIS_ReadRTE;external DLL_NAME;
   function AIS_ReadRTE_Count;external DLL_NAME;
+  function AIS_ReadLog_Count;external DLL_NAME;
   function AIS_ReadLog;external DLL_NAME;
+  function AIS_GetLog;external DLL_NAME;
+  function AIS_GetLogByIndex;external DLL_NAME;
+  function AIS_GetLogByTime;external DLL_NAME;
 
   {helper functions}
   function device_type_str2enum;external DLL_NAME;
