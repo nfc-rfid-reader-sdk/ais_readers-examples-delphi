@@ -71,7 +71,7 @@ function AIS_ReadRTE(hnd:integer;
 	                   var log_reader_id:integer;
                      var log_card_id:integer;
 		                 var log_system_id:integer;
-        		          nfc_uid:array of Byte;
+        		         var nfc_uid:array of Byte;
                 		 var nfc_uid_len:integer;
 		                 var timestamp:Int64):DL_STATUS stdcall;
 

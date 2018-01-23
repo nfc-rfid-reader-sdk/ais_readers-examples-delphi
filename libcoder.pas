@@ -66,16 +66,28 @@ function AIS_MainLoop(hnd:integer;
                       var Status:integer):DL_STATUS stdcall;
 
 function AIS_ReadRTE(hnd:integer;
+                     var log_index:Integer;
+		                 var log_action:integer;
+	                   var log_reader_id:integer;
+                     var log_card_id:integer;
+		                 var log_system_id:integer;
+        		         nfc_uid:PByte;
+                		 var nfc_uid_len:integer;
+		                 var timestamp:Int64):DL_STATUS stdcall;
+
+function AIS_ReadRTE_Count(hnd:integer):DL_STATUS stdcall;
+
+function AIS_ReadLog(hnd:integer;
                      var log_index:integer;
 		                 var log_action:integer;
 	                   var log_reader_id:integer;
                      var log_card_id:integer;
 		                 var log_system_id:integer;
-        		         var nfc_uid:array of Byte;
+        		         nfc_uid:PByte;
                 		 var nfc_uid_len:integer;
 		                 var timestamp:Int64):DL_STATUS stdcall;
 
-function AIS_ReadRTE_Count(hnd:integer):DL_STATUS stdcall;
+
 
 {helper functions}
 function device_type_str2enum(devTypeStr:ansistring; var devType:integer):DL_STATUS stdcall;
@@ -102,7 +114,7 @@ implementation
   function AIS_MainLoop;external DLL_NAME;
   function AIS_ReadRTE;external DLL_NAME;
   function AIS_ReadRTE_Count;external DLL_NAME;
-
+  function AIS_ReadLog;external DLL_NAME;
 
   {helper functions}
   function device_type_str2enum;external DLL_NAME;

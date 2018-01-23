@@ -1,7 +1,7 @@
 unit main;
 
 {
- ver 1.0.5;
+ ver 1.0.6;
 }
 
 
@@ -37,6 +37,7 @@ type
     procedure btnGetTimeClick(Sender: TObject);
     procedure btnSetTimeClick(Sender: TObject);
     procedure btnRTEClick(Sender: TObject);
+
   private
     dev:DEV_HND;
     HND_LIST:array of integer;
@@ -47,6 +48,7 @@ type
     function add_device(devType, devId:integer):boolean;
     function GetListInformation:string;
     procedure PrintRTE(dev:DEV_HND);
+    procedure PrintLog(dev:DEV_HND);
   public
     function AISGetTime(out res:string; dev:DEV_HND):int64;
     function AISSetTime(dev:DEV_HND):string;
@@ -126,25 +128,7 @@ begin
    txtOutput.Lines.Add(AIS_GetLibraryVersionStr);
 end;
 
-procedure TfrmMain.btnRTEClick(Sender: TObject);
-var
-    hnd:integer;
-    maxSec:integer;
-    stopTime:int64;
-begin
-    maxsec:=20;
-    stopTime:=DateTimeToUnix(Now) + maxSec;
-    txtOutput.Lines.Add(Format('Wait for RTE for %d...', [maxsec]));
-    while (DateTimeToUnix(Now)) < stopTime do begin
-      for hnd in HND_LIST do
-      begin
-          dev.hnd:=hnd;
-          MainLoop(dev);
-      end;
-    end;
-    txtOutput.Lines.Add('End RTE listen');
 
-end;
 
 procedure TfrmMain.btnSetTimeClick(Sender: TObject);
 begin
@@ -152,6 +136,8 @@ begin
   dev.hnd:=HND_LIST[dev.idx];
   txtOutput.Lines.Add(AISSetTime(dev));
 end;
+
+
 
 function TfrmMain.GetListInformation: string;
 var
@@ -199,7 +185,7 @@ begin
              dev.ID:=devID;
              dev.open:=devOpened;
              AIS_Open(devHnd);
-             txtOutput.Lines.Add(format('| %3d | %.16X | %s | %7d  | %2d  | %d  | %7d | %s | %5d  | %8d  | %9d | ', [i+1, devHnd, devSerial, devType, devID, devFW_VER, devCommSpeed, devFTDI_Serial, devOpened,devStatus, systemStatus]));
+             txtOutput.Lines.Add(Format(list_info, [i+1, devHnd, devSerial, devType, devID, devFW_VER, devCommSpeed, devFTDI_Serial, devOpened,devStatus, systemStatus]));
              cboDevices.Items.Append(IntToStr(dev.idx));
           end;
         finally
@@ -223,6 +209,40 @@ begin
 
 end;
 
+procedure TfrmMain.PrintLog(dev: DEV_HND);
+var
+        logIndex,
+        logAction,
+        logReaderId,
+        logCardId,
+        logSystemId:integer;
+        lognfcUid:array [0..NFC_UID_MAX_LEN] of Byte;
+        lognfcUidLen:integer;
+        timeStamp :int64;
+        nfc_uid,
+        uid_uid_len :ShortString;
+        rteCount :integer;
+        i:integer;
+begin
+        while True do
+        begin
+           dev.status_ :=  AIS_ReadLog(dev.hnd,
+                                        logIndex,
+                                        logAction,
+                                        logReaderId,
+                                        logCardId,
+                                        logSystemId,
+                                        @lognfcUid,
+                                        lognfcUidLen,
+                                        timeStamp);
+
+            if  dev.status_ <> DL_OK then begin
+              txtOutput.Lines.Add(dl_status2str(dev.status_));
+              break;
+            end;
+        end;
+end;
+
 procedure TfrmMain.PrintRTE(dev: DEV_HND);
 var
         logIndex,
@@ -237,36 +257,28 @@ var
         uid_uid_len :ShortString;
         rteCount :integer;
         i:integer;
-//        pNfc:PByte;
 begin
         rteCount :=  AIS_ReadRTE_Count(dev.hnd);
-//        pNfc:=@nfcUid;
+        txtOutput.Lines.Add(Format('AIS_ReadRTE_Count = %d '+#13#10+' = RTE Real Time Events = ' , [rteCount]));
 
-//        rte_head = "AIS_ReadRTE_Count = %d\n" % rte_count
-//        rte_head = "= RTE Real Time Events = \n"
-//        rte_head = rte_list_header[0]  + '\n' + \
-//                   rte_list_header[1] + '\n' + \
-//                   rte_list_header[2] + '\n'
+        txtOutput.Lines.Add(rte_list_header[0]  + #13#10 + rte_list_header[1] + #13#10 + rte_list_header[2] + #10);
 
         while True do
         begin
-            dev.status_ :=  AIS_ReadRTE(dev.hnd, logIndex, logAction, logReaderId, logCardId, logSystemId, nfcUid[0], nfcUidLen, timeStamp);
+            dev.status_ :=  AIS_ReadRTE(dev.hnd,
+                                        dev.log.log_index,
+                                        dev.log.log_action,
+                                        dev.log.log_reader_id,
+                                        dev.log.log_card_id,
+                                        dev.log.log_system_id,
+                                        @dev.log.log_nfc_uid,
+                                        dev.log.log_nfc_uid_len,
+                                        dev.log.log_timestamp);
+
             if  dev.status_ <> DL_OK then begin
               txtOutput.Lines.Add(dl_status2str(dev.status_));
               break;
             end;
-
-
-            dev.log.log_index := logIndex;
-            dev.log.log_action := logAction;
-            dev.log.log_reader_id := logReaderId;
-            dev.log.log_card_id := logCardId;
-            dev.log.log_system_id := logSystemId;
-//            dev.log.log_nfc_uid := nfcUid[0];
-            dev.log.log_nfc_uid_len := nfcUidLen;
-            dev.log.log_timestamp := timeStamp;
-
-
 
             nfc_uid := '';
             for i:=0 to dev.log.log_nfc_uid_len do
@@ -274,17 +286,13 @@ begin
 
             uid_uid_len := '[' + IntToStr(dev.log.log_nfc_uid_len) + '] | ' + nfc_uid;
 
-//            res_rte += rte_format.format (dev.log.log_index, dbg_action2str(dev.log.log_action), dev.log.log_reader_id, dev.log.log_card_id,
-//                                          dev.log.log_system_id, uid_uid_len,#nfc_uid + nfc_uid_len
-//                                          dev.log.log_timestamp, time.ctime(dev.log.log_timestamp))
-//
-//            res = res_rte + '\n' + rte_list_header[2] + '\n'
+            txtOutput.Lines.Add(Format(rte_format, [dev.log.log_index, dbg_action2str(dev.log.log_action), dev.log.log_reader_id, dev.log.log_card_id,
+                                          dev.log.log_system_id, uid_uid_len,
+                                          dev.log.log_timestamp, DateTimeToStr(UnixToDateTime(dev.log.log_timestamp))]) + rte_list_header[2]);
 
-//        resultText = rte_head + res + "LOG unread (incremental) = %d\n" % dev.UnreadLog + wr_status('AIS_ReadRTE()', DL_STATUS)
-//        return resultText
-
-          txtOutput.Lines.Add('ppp');
+            txtOutput.Lines.Add(Format('LOG unread (incremental) = %d | AIS_ReadRTE()= %s ', [dev.UnreadLog, dbg_action2str(dev.status_)]));
         end;
+
 end;
 
 function TfrmMain.list_device(): integer;
@@ -402,12 +410,70 @@ begin
 
         if dev.RealTimeEvents > 0 then begin
           txtOutput.Lines.Add(Format('RTE dev[0x%x]', [dev.hnd]));
-//          PrintRTE(dev);
+          PrintRTE(dev);
         end;
 
+        if dev.LogAvailable > 0 then begin
+            txtOutput.Lines.Add(Format('LOG= %d',[dev.LogAvailable]));
+            PrintLog(dev);
+        end;
+
+//        if dev.UnreadLog > 0 then begin
+//          if dev.UnreadLog_last <> dev.UnreadLog then
+//             dev.UnreadLog_last := dev.UnreadLog;
+//             txtOutput.Lines.Add(Format('dev[%d]:LOG unread (incremental) = %d %s' , [dev.idx, dev.UnreadLog, dl_status2str(dev.status_)]));
+//        end;
+
+        if dev.TimeoutOccurred > 0 then
+           txtOutput.Lines.Add(Format('TimeoutOccurred= %d',[dev.TimeoutOccurred]));
+
+
+        if dev.Status <> 0 then begin
+           txtOutput.Lines.Add(Format('[%d] local_status= %s' , [dev.idx, dl_status2str(dev.Status)]));
+        end;
+
+//        if dev.cmdPercent:
+//           print_percent(dev.cmdPercent)
+
+
+
+        if dev.cmdResponses <> 0 then begin
+            txtOutput.Lines.Add('-- COMMAND FINISH !--');
+            dev.cmd_finish := True;
+        end;
+
+
         Result:=True;
-
-
 end;
+
+procedure TfrmMain.btnRTEClick(Sender: TObject);
+var
+    hnd,i:integer;
+    maxSec:integer;
+    stopTime:int64;
+begin
+    maxsec:=20;
+    stopTime:=DateTimeToUnix(Now) + maxSec;
+    txtOutput.Lines.Add(Format('Wait for RTE for %d...', [maxsec]));
+    while (DateTimeToUnix(Now)) < stopTime do begin
+      for i:=Low(HND_LIST) to High(HND_LIST) do
+      begin
+          dev.idx:=i+1;
+          dev.hnd:=HND_LIST[i];
+          MainLoop(dev);
+      end;
+    end;
+    txtOutput.Lines.Add('End RTE listen');
+end;
+
+
+
+
+
+
+
+
+
+
 
 end.

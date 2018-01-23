@@ -14,8 +14,6 @@ object frmMain: TfrmMain
   Font.Style = []
   OldCreateOrder = False
   Position = poScreenCenter
-  OnClose = FormClose
-  OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
   object grpBaseCommands: TGroupBox
@@ -25,9 +23,16 @@ object frmMain: TfrmMain
     Height = 201
     Caption = ' Base Commands '
     TabOrder = 0
+    object lblDevices: TLabel
+      Left = 151
+      Top = 23
+      Width = 42
+      Height = 13
+      Caption = 'DEVICES'
+    end
     object btnLibVersion: TButton
-      Left = 160
-      Top = 32
+      Left = 24
+      Top = 88
       Width = 121
       Height = 41
       Cursor = crHandPoint
@@ -37,9 +42,10 @@ object frmMain: TfrmMain
     end
     object btnGetRun: TButton
       Left = 24
-      Top = 32
+      Top = 23
       Width = 121
-      Height = 41
+      Height = 50
+      Cursor = crHandPoint
       Caption = 'LOAD DEVICES'
       TabOrder = 0
       OnClick = btnGetRunClick
@@ -55,14 +61,48 @@ object frmMain: TfrmMain
       OnClick = btnExitClick
     end
     object btnGetTime: TButton
-      Left = 287
-      Top = 32
+      Left = 151
+      Top = 88
       Width = 121
       Height = 41
       Cursor = crHandPoint
       Caption = 'GET TIME'
       TabOrder = 3
       OnClick = btnGetTimeClick
+    end
+    object cboDevices: TComboBox
+      Left = 151
+      Top = 42
+      Width = 82
+      Height = 31
+      Cursor = crHandPoint
+      Font.Charset = EASTEUROPE_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Arial Black'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 4
+    end
+    object btnSetTime: TButton
+      Left = 278
+      Top = 88
+      Width = 121
+      Height = 41
+      Cursor = crHandPoint
+      Caption = 'SET TIME'
+      TabOrder = 5
+      OnClick = btnSetTimeClick
+    end
+    object btnRTE: TButton
+      Left = 405
+      Top = 88
+      Width = 121
+      Height = 41
+      Cursor = crHandPoint
+      Caption = 'RTE'
+      TabOrder = 6
+      OnClick = btnRTEClick
     end
   end
   object stbStatus: TStatusBar
