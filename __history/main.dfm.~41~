@@ -290,7 +290,6 @@ object frmMain: TfrmMain
       Top = 147
       Width = 121
       Height = 40
-      Cursor = crHandPoint
       Caption = 'UNREAD LOG ACK'
       TabOrder = 8
       OnClick = btnUnreadLogAckClick

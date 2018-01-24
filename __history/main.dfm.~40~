@@ -285,16 +285,6 @@ object frmMain: TfrmMain
       TabOrder = 7
       OnClick = btnUnreadLogGetClick
     end
-    object btnUnreadLogAck: TButton
-      Left = 296
-      Top = 147
-      Width = 121
-      Height = 40
-      Cursor = crHandPoint
-      Caption = 'UNREAD LOG ACK'
-      TabOrder = 8
-      OnClick = btnUnreadLogAckClick
-    end
   end
   object stbStatus: TStatusBar
     Left = 0

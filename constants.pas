@@ -63,7 +63,7 @@ interface
   const
        DL_OK            = 0;
        PASS             = '1111';
-
+       RECORDS_TO_ACK   = 1;
 
   format_grid:array[0..2] of ShortString = ('------------------------------------------------------------------------------------------------------------------------------------------',
                                            '| indx|  Reader HANDLE   | SerialNm | Type h/d | ID  | FW   | speed   | FTDI: sn   | opened | DevStatus | SysStatus |',

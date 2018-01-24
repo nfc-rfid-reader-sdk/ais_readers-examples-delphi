@@ -102,6 +102,16 @@ function AIS_GetLogByTime(hnd:integer;
                           start_time:Int64;
                           end_time:Int64):DL_STATUS stdcall;
 
+function AIS_UnreadLOG_Get(hnd:integer;
+                           var log_index:integer;
+                           var log_action:integer;
+                           var log_reader_id:integer;
+                           var log_card_id:integer;
+		                       var log_system_id:integer;
+        		               nfc_uid:PByte;
+                		       var nfc_uid_len:integer;
+		                       var timestamp:Int64):DL_STATUS stdcall;
+
 
 {helper functions}
 function device_type_str2enum(devTypeStr:ansistring; var devType:integer):DL_STATUS stdcall;
@@ -133,6 +143,8 @@ implementation
   function AIS_GetLog;external DLL_NAME;
   function AIS_GetLogByIndex;external DLL_NAME;
   function AIS_GetLogByTime;external DLL_NAME;
+  function AIS_UnreadLOG_Get;external DLL_NAME;
+
 
   {helper functions}
   function device_type_str2enum;external DLL_NAME;

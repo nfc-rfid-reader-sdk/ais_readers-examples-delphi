@@ -5,7 +5,7 @@ object frmMain: TfrmMain
   BorderStyle = bsSingle
   Caption = 'BaseHD'
   ClientHeight = 687
-  ClientWidth = 905
+  ClientWidth = 873
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -19,7 +19,7 @@ object frmMain: TfrmMain
   object grpBaseCommands: TGroupBox
     Left = 8
     Top = 3
-    Width = 889
+    Width = 857
     Height = 279
     Caption = ' Base Commands '
     TabOrder = 0
@@ -33,13 +33,13 @@ object frmMain: TfrmMain
     object Shape3: TShape
       Left = 40
       Top = 85
-      Width = 377
+      Width = 335
       Height = 3
     end
     object btnLibVersion: TButton
-      Left = 296
+      Left = 265
       Top = 100
-      Width = 121
+      Width = 107
       Height = 41
       Cursor = crHandPoint
       Caption = 'LIB VERSION'
@@ -59,7 +59,7 @@ object frmMain: TfrmMain
     object btnGetTime: TButton
       Left = 42
       Top = 100
-      Width = 121
+      Width = 107
       Height = 41
       Cursor = crHandPoint
       Caption = 'GET TIME'
@@ -81,9 +81,9 @@ object frmMain: TfrmMain
       TabOrder = 3
     end
     object btnSetTime: TButton
-      Left = 169
+      Left = 153
       Top = 100
-      Width = 121
+      Width = 107
       Height = 41
       Cursor = crHandPoint
       Caption = 'SET TIME'
@@ -91,7 +91,7 @@ object frmMain: TfrmMain
       OnClick = btnSetTimeClick
     end
     object grpLogs: TGroupBox
-      Left = 428
+      Left = 389
       Top = 23
       Width = 449
       Height = 224
@@ -275,31 +275,11 @@ object frmMain: TfrmMain
       TabOrder = 6
       OnClick = btnUnreadLogCountClick
     end
-    object btnUnreadLogGet: TButton
-      Left = 169
-      Top = 147
-      Width = 121
-      Height = 40
-      Cursor = crHandPoint
-      Caption = 'UNREAD LOG GET'
-      TabOrder = 7
-      OnClick = btnUnreadLogGetClick
-    end
-    object btnUnreadLogAck: TButton
-      Left = 296
-      Top = 147
-      Width = 121
-      Height = 40
-      Cursor = crHandPoint
-      Caption = 'UNREAD LOG ACK'
-      TabOrder = 8
-      OnClick = btnUnreadLogAckClick
-    end
   end
   object stbStatus: TStatusBar
     Left = 0
     Top = 662
-    Width = 905
+    Width = 873
     Height = 25
     Panels = <
       item
@@ -319,7 +299,7 @@ object frmMain: TfrmMain
   object txtOutput: TMemo
     Left = 8
     Top = 288
-    Width = 889
+    Width = 857
     Height = 330
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -332,7 +312,7 @@ object frmMain: TfrmMain
     TabOrder = 2
   end
   object btnExit: TButton
-    Left = 752
+    Left = 720
     Top = 620
     Width = 145
     Height = 39
