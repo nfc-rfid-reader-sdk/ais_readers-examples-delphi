@@ -1,7 +1,7 @@
 unit main;
 
 {
- ver 1.0.8;
+ ver 1.0.9;
 }
 
 
@@ -53,6 +53,8 @@ type
     btnUnreadLogAck: TButton;
     btnClearEditBox: TButton;
     pBar: TProgressBar;
+    rgrpLights: TRadioGroup;
+    btnLightChoise: TButton;
     procedure btnLibVersionClick(Sender: TObject);
     procedure btnGetRunClick(Sender: TObject);
     procedure btnExitClick(Sender: TObject);
@@ -66,6 +68,7 @@ type
     procedure btnUnreadLogGetClick(Sender: TObject);
     procedure btnUnreadLogAckClick(Sender: TObject);
     procedure btnClearEditBoxClick(Sender: TObject);
+    procedure btnLightChoiseClick(Sender: TObject);
 
   private
     dev:DEV_HND;
@@ -91,6 +94,7 @@ type
     procedure LogByTime(startTime,endTime:integer; dev:DEV_HND);
     procedure UnreadLogGet(dev:DEV_HND);
     procedure UnreadLogAck(recToAck:Int32;dev:DEV_HND);
+    procedure LightChoise(index:integer; dev:DEV_HND);
   end;
 
 var
@@ -146,7 +150,9 @@ procedure TfrmMain.btnAllLogsClick(Sender: TObject);
 begin
    dev.idx :=cboDevices.ItemIndex;
    dev.hnd:=HND_LIST[dev.idx];
+   pBar.Visible:=True;
    LogGet(dev);
+   pBar.Visible:=False;
 end;
 
 procedure TfrmMain.btnClearEditBoxClick(Sender: TObject);
@@ -182,6 +188,13 @@ end;
 
 
 
+procedure TfrmMain.btnLightChoiseClick(Sender: TObject);
+begin
+  dev.idx :=cboDevices.ItemIndex;
+  dev.hnd:=HND_LIST[dev.idx];
+  LightChoise(rgrpLights.ItemIndex, dev);
+end;
+
 procedure TfrmMain.btnLogByIndexClick(Sender: TObject);
 var
    startIdx,
@@ -202,7 +215,9 @@ begin
    endIdx:=StrToInt(txtLogEndIndex.Text);
    dev.idx :=cboDevices.ItemIndex;
    dev.hnd:=HND_LIST[dev.idx];
+   pBar.Visible:=True;
    LogByIndex(startIdx, endIdx, dev);
+   pBar.Visible:=False;
 end;
 
 procedure TfrmMain.btnLogByTimeClick(Sender: TObject);
@@ -225,7 +240,9 @@ begin
    endT:=StrToInt(txtLogEndTime.Text);
    dev.idx :=cboDevices.ItemIndex;
    dev.hnd:=HND_LIST[dev.idx];
+   pBar.Visible:=True;
    LogByTime(startT, endT, dev);
+   pBar.Visible:=False;
 end;
 
 procedure TfrmMain.btnSetTimeClick(Sender: TObject);
@@ -330,6 +347,15 @@ begin
           Dispose(dev);
         end;
 
+end;
+
+procedure TfrmMain.LightChoise(index: integer; dev: DEV_HND);
+var
+   lights:array[0..3] of int32 =(0,0,0,0);
+begin
+   lights[index]:=1;
+   dev.status_ := AIS_LightControl(dev.hnd, lights[0], lights[1], lights[2], lights[3]);
+   txtOutput.Lines.Add(Format('dev[%d] AIS_LightControl(master:green= %d | master:red= %d || slave:green= %d | slave:red= %d) > %s' , [dev.idx + 1, lights[0], lights[1], lights[2], lights[3] , dbg_action2str(dev.status_)]));
 end;
 
 procedure TfrmMain.prepare_list_for_check;
@@ -438,7 +464,7 @@ end;
 procedure TfrmMain.print_percent(percent: integer);
 begin
    while (progress_.percent_old < percent) do begin
-    if progress_.percent_old < 103 then pBar.Position:= progress_.percent_old;
+    if progress_.percent_old < 100 then pBar.Position:= progress_.percent_old;
     Inc(progress_.percent_old);
    end;
 end;

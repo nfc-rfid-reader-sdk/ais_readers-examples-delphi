@@ -1,7 +1,7 @@
 unit main;
 
 {
- ver 1.0.9;
+ ver 1.0.10;
 }
 
 
@@ -53,6 +53,8 @@ type
     btnUnreadLogAck: TButton;
     btnClearEditBox: TButton;
     pBar: TProgressBar;
+    rgrpLights: TRadioGroup;
+    btnLightChoise: TButton;
     procedure btnLibVersionClick(Sender: TObject);
     procedure btnGetRunClick(Sender: TObject);
     procedure btnExitClick(Sender: TObject);
@@ -66,6 +68,7 @@ type
     procedure btnUnreadLogGetClick(Sender: TObject);
     procedure btnUnreadLogAckClick(Sender: TObject);
     procedure btnClearEditBoxClick(Sender: TObject);
+    procedure btnLightChoiseClick(Sender: TObject);
 
   private
     dev:DEV_HND;
@@ -91,6 +94,7 @@ type
     procedure LogByTime(startTime,endTime:integer; dev:DEV_HND);
     procedure UnreadLogGet(dev:DEV_HND);
     procedure UnreadLogAck(recToAck:Int32;dev:DEV_HND);
+    procedure LightChoise(index:integer; dev:DEV_HND);
   end;
 
 var
@@ -183,6 +187,13 @@ begin
 end;
 
 
+
+procedure TfrmMain.btnLightChoiseClick(Sender: TObject);
+begin
+  dev.idx :=cboDevices.ItemIndex;
+  dev.hnd:=HND_LIST[dev.idx];
+  LightChoise(rgrpLights.ItemIndex, dev);
+end;
 
 procedure TfrmMain.btnLogByIndexClick(Sender: TObject);
 var
@@ -336,6 +347,17 @@ begin
           Dispose(dev);
         end;
 
+end;
+
+procedure TfrmMain.LightChoise(index: integer; dev: DEV_HND);
+var
+   i:Byte;
+   lights:array[0..3] of int32;
+begin
+   for i := Low(lights) to High(lights) do lights[i]:=0;
+   lights[index]:=1;
+   dev.status_ := AIS_LightControl(dev.hnd, lights[0], lights[1], lights[2], lights[3]);
+   txtOutput.Lines.Add(Format('dev[%d] AIS_LightControl(master:green= %d | master:red= %d || slave:green= %d | slave:red= %d) > %s' , [dev.idx + 1, lights[0], lights[1], lights[2], lights[3] , dbg_action2str(dev.status_)]));
 end;
 
 procedure TfrmMain.prepare_list_for_check;

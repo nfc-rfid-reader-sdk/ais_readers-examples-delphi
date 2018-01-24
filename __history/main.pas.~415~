@@ -1,7 +1,7 @@
 unit main;
 
 {
- ver 1.0.8;
+ ver 1.0.9;
 }
 
 
@@ -146,7 +146,9 @@ procedure TfrmMain.btnAllLogsClick(Sender: TObject);
 begin
    dev.idx :=cboDevices.ItemIndex;
    dev.hnd:=HND_LIST[dev.idx];
+   pBar.Visible:=True;
    LogGet(dev);
+   pBar.Visible:=False;
 end;
 
 procedure TfrmMain.btnClearEditBoxClick(Sender: TObject);
@@ -202,7 +204,9 @@ begin
    endIdx:=StrToInt(txtLogEndIndex.Text);
    dev.idx :=cboDevices.ItemIndex;
    dev.hnd:=HND_LIST[dev.idx];
+   pBar.Visible:=True;
    LogByIndex(startIdx, endIdx, dev);
+   pBar.Visible:=False;
 end;
 
 procedure TfrmMain.btnLogByTimeClick(Sender: TObject);
@@ -225,7 +229,9 @@ begin
    endT:=StrToInt(txtLogEndTime.Text);
    dev.idx :=cboDevices.ItemIndex;
    dev.hnd:=HND_LIST[dev.idx];
+   pBar.Visible:=True;
    LogByTime(startT, endT, dev);
+   pBar.Visible:=False;
 end;
 
 procedure TfrmMain.btnSetTimeClick(Sender: TObject);
@@ -438,7 +444,7 @@ end;
 procedure TfrmMain.print_percent(percent: integer);
 begin
    while (progress_.percent_old < percent) do begin
-    if progress_.percent_old < 101 then pBar.Position:= progress_.percent_old;
+    if progress_.percent_old < 100 then pBar.Position:= progress_.percent_old;
     Inc(progress_.percent_old);
    end;
 end;

@@ -92,7 +92,7 @@ object frmMain: TfrmMain
     end
     object grpLogs: TGroupBox
       Left = 428
-      Top = 23
+      Top = 30
       Width = 449
       Height = 224
       TabOrder = 5
@@ -294,6 +294,30 @@ object frmMain: TfrmMain
       Caption = 'UNREAD LOG ACK'
       TabOrder = 8
       OnClick = btnUnreadLogAckClick
+    end
+    object rgrpLights: TRadioGroup
+      Left = 42
+      Top = 193
+      Width = 248
+      Height = 74
+      Caption = ' Lights '
+      Columns = 2
+      Items.Strings = (
+        'GREEN MASTER'
+        'RED MASTER'
+        'GREEN SLAVE'
+        'RED SLAVE')
+      TabOrder = 9
+    end
+    object btnLightChoise: TButton
+      Left = 296
+      Top = 198
+      Width = 121
+      Height = 69
+      Cursor = crHandPoint
+      Caption = 'LIGHT CHOISE'
+      TabOrder = 10
+      OnClick = btnLightChoiseClick
     end
   end
   object stbStatus: TStatusBar

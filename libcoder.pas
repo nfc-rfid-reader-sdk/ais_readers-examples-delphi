@@ -112,6 +112,12 @@ function AIS_UnreadLOG_Get(hnd:integer;
                 		       var nfc_uid_len:integer;
 		                       var timestamp:Int64):DL_STATUS stdcall;
 
+function AIS_UnreadLOG_Ack(hnd:integer; rec_to_ack:Int32):DL_STATUS stdcall;
+function AIS_LightControl(hnd:integer;
+                          green_master:int32;
+                          red_master:int32;
+                          green_slave:int32;
+                          red_slave:int32):DL_STATUS stdcall;
 
 {helper functions}
 function device_type_str2enum(devTypeStr:ansistring; var devType:integer):DL_STATUS stdcall;
@@ -144,7 +150,8 @@ implementation
   function AIS_GetLogByIndex;external DLL_NAME;
   function AIS_GetLogByTime;external DLL_NAME;
   function AIS_UnreadLOG_Get;external DLL_NAME;
-
+  function AIS_UnreadLOG_Ack;external DLL_NAME;
+  function AIS_LightControl;external DLL_NAME;
 
   {helper functions}
   function device_type_str2enum;external DLL_NAME;
