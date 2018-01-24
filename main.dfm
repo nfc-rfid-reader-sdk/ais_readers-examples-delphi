@@ -341,4 +341,23 @@ object frmMain: TfrmMain
     TabOrder = 3
     OnClick = btnExitClick
   end
+  object btnClearEditBox: TButton
+    Left = 8
+    Top = 620
+    Width = 145
+    Height = 39
+    Cursor = crHandPoint
+    Caption = 'CLEAR'
+    TabOrder = 4
+    OnClick = btnClearEditBoxClick
+  end
+  object pBar: TProgressBar
+    Left = 170
+    Top = 624
+    Width = 565
+    Height = 32
+    Smooth = True
+    TabOrder = 5
+    Visible = False
+  end
 end

@@ -1,7 +1,7 @@
 unit main;
 
 {
- ver 1.0.8;
+ ver 1.0.9;
 }
 
 
@@ -51,6 +51,8 @@ type
     btnUnreadLogCount: TButton;
     btnUnreadLogGet: TButton;
     btnUnreadLogAck: TButton;
+    btnClearEditBox: TButton;
+    pBar: TProgressBar;
     procedure btnLibVersionClick(Sender: TObject);
     procedure btnGetRunClick(Sender: TObject);
     procedure btnExitClick(Sender: TObject);
@@ -63,6 +65,7 @@ type
     procedure btnUnreadLogCountClick(Sender: TObject);
     procedure btnUnreadLogGetClick(Sender: TObject);
     procedure btnUnreadLogAckClick(Sender: TObject);
+    procedure btnClearEditBoxClick(Sender: TObject);
 
   private
     dev:DEV_HND;
@@ -79,7 +82,7 @@ type
     procedure PrintRTE(dev:DEV_HND);
     procedure PrintLog(dev:DEV_HND);
     procedure DoCmd(dev:DEV_HND);
-
+    procedure print_percent(percent:integer);
   public
     function AISGetTime(out res:string; dev:DEV_HND):int64;
     function AISSetTime(dev:DEV_HND):string;
@@ -143,7 +146,14 @@ procedure TfrmMain.btnAllLogsClick(Sender: TObject);
 begin
    dev.idx :=cboDevices.ItemIndex;
    dev.hnd:=HND_LIST[dev.idx];
+   pBar.Visible:=True;
    LogGet(dev);
+   pBar.Visible:=False;
+end;
+
+procedure TfrmMain.btnClearEditBoxClick(Sender: TObject);
+begin
+  txtOutput.Clear;
 end;
 
 procedure TfrmMain.btnExitClick(Sender: TObject);
@@ -194,7 +204,9 @@ begin
    endIdx:=StrToInt(txtLogEndIndex.Text);
    dev.idx :=cboDevices.ItemIndex;
    dev.hnd:=HND_LIST[dev.idx];
+   pBar.Visible:=True;
    LogByIndex(startIdx, endIdx, dev);
+   pBar.Visible:=False;
 end;
 
 procedure TfrmMain.btnLogByTimeClick(Sender: TObject);
@@ -217,7 +229,9 @@ begin
    endT:=StrToInt(txtLogEndTime.Text);
    dev.idx :=cboDevices.ItemIndex;
    dev.hnd:=HND_LIST[dev.idx];
+   pBar.Visible:=True;
    LogByTime(startT, endT, dev);
+   pBar.Visible:=False;
 end;
 
 procedure TfrmMain.btnSetTimeClick(Sender: TObject);
@@ -425,6 +439,14 @@ end;
 function TfrmMain.print_log_unread(dev: DEV_HND):string;
 begin
   Result:=(Format('dev[%d]:LOG unread (incremental) = %d %s' , [dev.idx + 1, dev.UnreadLog, dbg_action2str(dev.status_)]));
+end;
+
+procedure TfrmMain.print_percent(percent: integer);
+begin
+   while (progress_.percent_old < percent) do begin
+    if progress_.percent_old < 100 then pBar.Position:= progress_.percent_old;
+    Inc(progress_.percent_old);
+   end;
 end;
 
 procedure TfrmMain.UnreadLogAck(recToAck:Int32; dev:DEV_HND);
@@ -638,9 +660,7 @@ begin
            txtOutput.Lines.Add(Format('[%d] local_status= %s' , [dev.idx, dl_status2str(dev.Status)]));
         end;
 
-//        if dev.cmdPercent > 0 then
-////           print_percent(dev.cmdPercent)
-//           txtOutput.Text:='*';
+        if dev.cmdPercent > 0 then print_percent(dev.cmdPercent);
 
         if dev.cmdResponses > 0 then begin
             txtOutput.Lines.Add('-- COMMAND FINISH !--');
