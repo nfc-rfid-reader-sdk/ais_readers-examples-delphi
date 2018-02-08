@@ -29,25 +29,8 @@ type
     lblDevices: TLabel;
     cboDevices: TComboBox;
     btnSetTime: TButton;
-    grpLogs: TGroupBox;
-    btnRTE: TButton;
-    lblTimeDuration: TLabel;
-    txtRteDuration: TEdit;
-    btnAllLogs: TButton;
-    txtLogStartIndex: TEdit;
-    lblLogStartIndex: TLabel;
-    lblLogEndIndex: TLabel;
-    txtLogEndIndex: TEdit;
-    btnLogByIndex: TButton;
     btnExit: TButton;
     Shape3: TShape;
-    lblLogStartTime: TLabel;
-    txtLogStartTime: TEdit;
-    lblLogEndTime: TLabel;
-    txtLogEndTime: TEdit;
-    btnLogByTime: TButton;
-    Bevel1: TBevel;
-    Bevel2: TBevel;
     btnUnreadLogCount: TButton;
     btnUnreadLogGet: TButton;
     btnUnreadLogAck: TButton;
@@ -55,6 +38,39 @@ type
     pBar: TProgressBar;
     rgrpLights: TRadioGroup;
     btnLightChoise: TButton;
+    pgMain: TPageControl;
+    tabLogs: TTabSheet;
+    grpLogs: TGroupBox;
+    lblTimeDuration: TLabel;
+    lblLogStartIndex: TLabel;
+    lblLogEndIndex: TLabel;
+    lblLogStartTime: TLabel;
+    lblLogEndTime: TLabel;
+    Bevel1: TBevel;
+    Bevel2: TBevel;
+    btnRTE: TButton;
+    txtRteDuration: TEdit;
+    btnAllLogs: TButton;
+    txtLogStartIndex: TEdit;
+    txtLogEndIndex: TEdit;
+    btnLogByIndex: TButton;
+    txtLogStartTime: TEdit;
+    txtLogEndTime: TEdit;
+    btnLogByTime: TButton;
+    tabBWLists: TTabSheet;
+    pgWhiteL: TPageControl;
+    tabWhiteL: TTabSheet;
+    btnReadWhiteList: TButton;
+    grpWhiteW: TGroupBox;
+    txtWhiteWLabel: TMemo;
+    txtWhiteW: TMemo;
+    btnWhiteListWrite: TButton;
+    TabSheet1: TTabSheet;
+    GroupBox1: TGroupBox;
+    txtBlackWriteLabel: TMemo;
+    txtWriteB: TMemo;
+    btnBlackListWrite: TButton;
+    Button2: TButton;
     procedure btnLibVersionClick(Sender: TObject);
     procedure btnGetRunClick(Sender: TObject);
     procedure btnExitClick(Sender: TObject);
@@ -69,6 +85,8 @@ type
     procedure btnUnreadLogAckClick(Sender: TObject);
     procedure btnClearEditBoxClick(Sender: TObject);
     procedure btnLightChoiseClick(Sender: TObject);
+    procedure btnReadWhiteListClick(Sender: TObject);
+    procedure btnWhiteListWriteClick(Sender: TObject);
 
   private
     dev:DEV_HND;
@@ -86,6 +104,7 @@ type
     procedure PrintLog(dev:DEV_HND);
     procedure DoCmd(dev:DEV_HND);
     procedure print_percent(percent:integer);
+
   public
     function AISGetTime(out res:string; dev:DEV_HND):int64;
     function AISSetTime(dev:DEV_HND):string;
@@ -95,6 +114,8 @@ type
     procedure UnreadLogGet(dev:DEV_HND);
     procedure UnreadLogAck(recToAck:Int32;dev:DEV_HND);
     procedure LightChoise(index:integer; dev:DEV_HND);
+    procedure WhiteList_Read(dev:DEV_HND);
+    procedure WhiteList_Write(dev:DEV_HND);
   end;
 
 var
@@ -277,6 +298,13 @@ begin
    dev.idx :=cboDevices.ItemIndex;
    dev.hnd:=HND_LIST[dev.idx];
    UnreadLogGet(dev);
+end;
+
+procedure TfrmMain.btnWhiteListWriteClick(Sender: TObject);
+begin
+   dev.idx :=cboDevices.ItemIndex;
+   dev.hnd:=HND_LIST[dev.idx];
+   WhiteList_Write(dev);
 end;
 
 procedure TfrmMain.DoCmd(dev: DEV_HND);
@@ -512,6 +540,31 @@ begin
 
 end;
 
+procedure TfrmMain.WhiteList_Read(dev:DEV_HND);
+var
+    white_list_size :integer;
+    white_list      :PAnsiChar;
+begin
+    dev.status_:= AIS_Whitelist_Read(dev.hnd, PASS, @white_list);
+    if dev.status_= DL_OK then
+       white_list_size:=Length(white_list)
+    else
+       white_list_size:=0;
+    txtOutput.Lines.Add('=- WHITE LIST READ -=');
+    txtOutput.Lines.Add(Format('dev[%d] AIS_Whitelist_Read(pass:%s): size= %d >%s > %s' , [dev.idx+1, PASS, white_list_size, white_list, dl_status2str(dev.status_)]));
+end;
+
+procedure TfrmMain.WhiteList_Write(dev: DEV_HND);
+var
+    white_list_write:ansistring;
+begin
+    white_list_write:=txtWhiteW.Text;
+    dev.status_ := AIS_Whitelist_Write(dev.hnd, PASS, white_list_write);
+    txtOutput.Lines.Add('=- WHITE LIST WRITE -=');
+    txtOutput.Lines.Add(Format('dev[%d] AIS_Whitelist_Write(pass:%s):white_list= %s > %s' , [dev.idx+1,PASS, white_list_write, dl_status2str(dev.status)]));
+end;
+
+
 function TfrmMain.list_device(): integer;
 var
   status:DL_STATUS;
@@ -528,7 +581,6 @@ begin
      end;
      if devCount > 0 then GetListInformation;
      Result:=devCount;
-
 end;
 
 function TfrmMain.list_for_check_print:string;
@@ -540,7 +592,6 @@ function TfrmMain.list_for_check_print:string;
     dev_id,a:integer;
     status:DL_STATUS;
     arrv,ll:TStringDynArray;
-
   begin
        rv := AIS_List_GetDevicesForCheck;
        if  Length(rv) = 0 then Exit;
@@ -690,6 +741,13 @@ begin
 //            Result:=False;
         end;
         Result:=True;
+end;
+
+procedure TfrmMain.btnReadWhiteListClick(Sender: TObject);
+begin
+  dev.idx :=cboDevices.ItemIndex;
+  dev.hnd:=HND_LIST[dev.idx];
+  WhiteList_Read(dev);
 end;
 
 procedure TfrmMain.btnRTEClick(Sender: TObject);
