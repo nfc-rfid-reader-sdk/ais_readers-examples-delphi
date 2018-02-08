@@ -149,7 +149,7 @@ object frmMain: TfrmMain
       Top = 12
       Width = 454
       Height = 255
-      ActivePage = tabBWLists
+      ActivePage = tabLogs
       TabOrder = 10
       object tabLogs: TTabSheet
         Caption = 'LOGS'
@@ -339,7 +339,7 @@ object frmMain: TfrmMain
           Top = 8
           Width = 427
           Height = 209
-          ActivePage = TabSheet1
+          ActivePage = tabWhiteL
           TabOrder = 0
           object tabWhiteL: TTabSheet
             Caption = 'White List '
@@ -367,7 +367,7 @@ object frmMain: TfrmMain
                 Left = 13
                 Top = 18
                 Width = 376
-                Height = 46
+                Height = 30
                 BorderStyle = bsNone
                 Font.Charset = DEFAULT_CHARSET
                 Font.Color = clWindowText
@@ -382,6 +382,7 @@ object frmMain: TfrmMain
                     'Each UID separate by '#39','#39' or space eg. 37:0C:96:69,C2.66.EF.95 01' +
                     '234567')
                 ParentFont = False
+                ReadOnly = True
                 TabOrder = 0
               end
               object txtWhiteW: TMemo
@@ -433,6 +434,7 @@ object frmMain: TfrmMain
                     ')'
                   'eg. 2, 102 250;11')
                 ParentFont = False
+                ReadOnly = True
                 TabOrder = 0
               end
               object txtWriteB: TMemo
@@ -446,15 +448,16 @@ object frmMain: TfrmMain
               end
               object btnBlackListWrite: TButton
                 Left = 304
-                Top = 54
+                Top = 53
                 Width = 89
                 Height = 58
                 Cursor = crHandPoint
                 Caption = 'WRITE'
                 TabOrder = 2
+                OnClick = btnBlackListWriteClick
               end
             end
-            object Button2: TButton
+            object btnReadBlackList: TButton
               Left = 8
               Top = 131
               Width = 401
@@ -462,6 +465,7 @@ object frmMain: TfrmMain
               Cursor = crHandPoint
               Caption = 'BLACK LIST READ'
               TabOrder = 1
+              OnClick = btnReadBlackListClick
             end
           end
         end
@@ -496,7 +500,7 @@ object frmMain: TfrmMain
     Font.Charset = EASTEUROPE_CHARSET
     Font.Color = clWindowText
     Font.Height = -12
-    Font.Name = 'Courier New'
+    Font.Name = 'Arial'
     Font.Style = []
     ParentFont = False
     ReadOnly = True

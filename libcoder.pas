@@ -127,6 +127,14 @@ function AIS_Whitelist_Write(hnd:integer;
                             password:PAnsiChar;
                             str_csv_whitelist:ansistring):DL_STATUS stdcall;
 
+function AIS_Blacklist_Read(hnd:integer;
+                            password:PAnsiChar;
+                            str_csv_blacklist:PAnsiChar):DL_STATUS stdcall;
+
+function AIS_Blacklist_Write(hnd:integer;
+                            password:PAnsiChar;
+                            str_csv_blacklist:ansistring):DL_STATUS stdcall;
+
 {helper functions}
 function device_type_str2enum(devTypeStr:ansistring; var devType:integer):DL_STATUS stdcall;
 function device_type_enum2str(devType:integer; var devTypeStr:PAnsiChar):DL_STATUS stdcall;
@@ -162,6 +170,8 @@ implementation
   function AIS_LightControl;external DLL_NAME;
   function AIS_Whitelist_Read;external DLL_NAME;
   function AIS_Whitelist_Write;external DLL_NAME;
+  function AIS_Blacklist_Read;external DLL_NAME;
+  function AIS_Blacklist_Write;external DLL_NAME;
 
   {helper functions}
   function device_type_str2enum;external DLL_NAME;

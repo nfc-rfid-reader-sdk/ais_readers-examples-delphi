@@ -70,7 +70,7 @@ type
     txtBlackWriteLabel: TMemo;
     txtWriteB: TMemo;
     btnBlackListWrite: TButton;
-    Button2: TButton;
+    btnReadBlackList: TButton;
     procedure btnLibVersionClick(Sender: TObject);
     procedure btnGetRunClick(Sender: TObject);
     procedure btnExitClick(Sender: TObject);
@@ -87,6 +87,8 @@ type
     procedure btnLightChoiseClick(Sender: TObject);
     procedure btnReadWhiteListClick(Sender: TObject);
     procedure btnWhiteListWriteClick(Sender: TObject);
+    procedure btnReadBlackListClick(Sender: TObject);
+    procedure btnBlackListWriteClick(Sender: TObject);
 
   private
     dev:DEV_HND;
@@ -116,6 +118,8 @@ type
     procedure LightChoise(index:integer; dev:DEV_HND);
     procedure WhiteList_Read(dev:DEV_HND);
     procedure WhiteList_Write(dev:DEV_HND);
+    procedure BlackList_Read(dev:DEV_HND);
+    procedure BlackList_Write(dev:DEV_HND);
   end;
 
 var
@@ -167,6 +171,31 @@ begin
              [dev.idx + 1, dev.hnd, PASS, dl_status2str(devStatus), timez, DST, offset, additional,  currTime, DateTimeToStr(UnixToDateTime(currTime))]);
 end;
 
+procedure TfrmMain.BlackList_Read(dev: DEV_HND);
+var
+    black_list_size :integer;
+    black_list      :PAnsiChar;
+begin
+    dev.status_:= AIS_Blacklist_Read(dev.hnd, PASS, @black_list);
+    if dev.status_= DL_OK then
+       black_list_size:=Length(black_list)
+    else
+       black_list_size:=0;
+    txtOutput.Lines.Add(#13#10 + '=- BLACK LIST READ -=');
+    txtOutput.Lines.Add(Format('dev[%d]  AIS_Blacklist_Read(pass:%s): size= %d >%s > %s' , [dev.idx+1, PASS, black_list_size, black_list, dl_status2str(dev.status_)]));
+
+end;
+
+procedure TfrmMain.BlackList_Write(dev: DEV_HND);
+var
+    black_list_write:ansistring;
+begin
+    black_list_write:=txtWriteB.Text;
+    dev.status_ := AIS_Blacklist_Write(dev.hnd, PASS, black_list_write);
+    txtOutput.Lines.Add(#13#10 + '=- BLACK LIST WRITE -=');
+    txtOutput.Lines.Add(Format('dev[%d]  AIS_Blacklist_Write(pass:%s):black_list= %s > %s' , [dev.idx+1, PASS, black_list_write, dl_status2str(dev.status_)]));
+end;
+
 procedure TfrmMain.btnAllLogsClick(Sender: TObject);
 begin
    dev.idx :=cboDevices.ItemIndex;
@@ -174,6 +203,13 @@ begin
    pBar.Visible:=True;
    LogGet(dev);
    pBar.Visible:=False;
+end;
+
+procedure TfrmMain.btnBlackListWriteClick(Sender: TObject);
+begin
+   dev.idx :=cboDevices.ItemIndex;
+   dev.hnd:=HND_LIST[dev.idx];
+   BlackList_Write(dev);
 end;
 
 procedure TfrmMain.btnClearEditBoxClick(Sender: TObject);
@@ -550,8 +586,8 @@ begin
        white_list_size:=Length(white_list)
     else
        white_list_size:=0;
-    txtOutput.Lines.Add('=- WHITE LIST READ -=');
-    txtOutput.Lines.Add(Format('dev[%d] AIS_Whitelist_Read(pass:%s): size= %d >%s > %s' , [dev.idx+1, PASS, white_list_size, white_list, dl_status2str(dev.status_)]));
+    txtOutput.Lines.Add(#13#10 +'=- WHITE LIST READ -=');
+    txtOutput.Lines.Add(Format('dev[%d]  AIS_Whitelist_Read(pass:%s): size= %d >%s > %s' , [dev.idx+1, PASS, white_list_size, white_list, dl_status2str(dev.status_)]));
 end;
 
 procedure TfrmMain.WhiteList_Write(dev: DEV_HND);
@@ -560,8 +596,8 @@ var
 begin
     white_list_write:=txtWhiteW.Text;
     dev.status_ := AIS_Whitelist_Write(dev.hnd, PASS, white_list_write);
-    txtOutput.Lines.Add('=- WHITE LIST WRITE -=');
-    txtOutput.Lines.Add(Format('dev[%d] AIS_Whitelist_Write(pass:%s):white_list= %s > %s' , [dev.idx+1,PASS, white_list_write, dl_status2str(dev.status)]));
+    txtOutput.Lines.Add(#13#10 +'=- WHITE LIST WRITE -=');
+    txtOutput.Lines.Add(Format('dev[%d]  AIS_Whitelist_Write(pass:%s):white_list= %s > %s' , [dev.idx+1,PASS, white_list_write, dl_status2str(dev.status_)]));
 end;
 
 
@@ -741,6 +777,13 @@ begin
 //            Result:=False;
         end;
         Result:=True;
+end;
+
+procedure TfrmMain.btnReadBlackListClick(Sender: TObject);
+begin
+  dev.idx :=cboDevices.ItemIndex;
+  dev.hnd:=HND_LIST[dev.idx];
+  BlackList_Read(dev);
 end;
 
 procedure TfrmMain.btnReadWhiteListClick(Sender: TObject);
